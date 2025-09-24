@@ -129,6 +129,7 @@ export async function generateInvestmentRecommendations(
     investmentGoal: 'RENDA' | 'CRESCIMENTO' | 'BALANCEADO';
     riskTolerance: 'CONSERVADOR' | 'MODERADO' | 'ARROJADO';
     monthlyInvestment: number;
+    preferences?: string;
   }
 ): Promise<{
   recommendations: Array<{
@@ -152,6 +153,7 @@ PERFIL DO INVESTIDOR:
 - Objetivo: ${userProfile.investmentGoal}
 - Tolerância ao risco: ${userProfile.riskTolerance}
 - Aporte mensal: R$ ${userProfile.monthlyInvestment.toFixed(2)}
+${userProfile.preferences ? `- Preferências específicas: ${userProfile.preferences}` : ''}
 
 Considere:
 1. Diversificação setorial
@@ -159,6 +161,7 @@ Considere:
 3. Potencial de crescimento
 4. Yield histórico
 5. Qualidade da gestão
+${userProfile.preferences ? '6. As preferências específicas do investidor mencionadas acima' : ''}
 
 Responda APENAS em formato JSON:
 {

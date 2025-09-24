@@ -8,13 +8,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Target, DollarSign, TrendingUp, PieChart, Calculator, Brain } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useInvestmentRecommendations } from "@/hooks/use-investment-recommendations";
+import { Target, DollarSign, TrendingUp, PieChart, Calculator, Brain, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function DirecionarAportesPage() {
   const [aporteValue, setAporteValue] = useState("");
   const [preferences, setPreferences] = useState("");
+  const [riskTolerance, setRiskTolerance] = useState<'CONSERVADOR' | 'MODERADO' | 'ARROJADO'>('MODERADO');
+  const [investmentGoal, setInvestmentGoal] = useState<'RENDA' | 'CRESCIMENTO' | 'BALANCEADO'>('BALANCEADO');
   const [analysis, setAnalysis] = useState<any>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const investmentMutation = useInvestmentRecommendations();
 
   useSetPageMetadata({
     title: "Direcionador de Aportes FII",
@@ -26,24 +32,47 @@ export default function DirecionarAportesPage() {
   });
 
   const handleAnalyze = async () => {
-    if (!aporteValue) return;
+    if (!aporteValue) {
+      toast.error('Digite o valor do aporte');
+      return;
+    }
     
-    setIsAnalyzing(true);
+    const investmentAmount = parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.'));
     
-    // Simulate API call - this would be replaced with actual API
-    setTimeout(() => {
-      setAnalysis({
-        totalAporte: parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.')),
-        recommendations: [
-          { codigo: "HGLG11", nome: "Cshg Logística", percentual: 35, valor: parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.')) * 0.35, setor: "Logístico", justificativa: "Alta liquidez e bom dividend yield" },
-          { codigo: "XPML11", nome: "XP Malls", percentual: 25, valor: parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.')) * 0.25, setor: "Shopping", justificativa: "Diversificação setorial recomendada" },
-          { codigo: "KNRI11", nome: "Kinea Renda Imobiliária", percentual: 20, valor: parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.')) * 0.20, setor: "Corporativo", justificativa: "Estabilidade e crescimento consistente" },
-          { codigo: "BCFF11", nome: "BTG Pactual Fundo de Fundos", percentual: 20, valor: parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.')) * 0.20, setor: "Fundos", justificativa: "Exposição diversificada ao mercado" }
-        ],
-        reasoning: "Distribuição baseada na diversificação setorial e potencial de crescimento, considerando liquidez e dividend yield."
+    if (investmentAmount <= 0) {
+      toast.error('O valor do aporte deve ser maior que zero');
+      return;
+    }
+    
+    try {
+      const result = await investmentMutation.mutateAsync({
+        investmentAmount,
+        preferences,
+        riskTolerance,
+        investmentGoal
       });
-      setIsAnalyzing(false);
-    }, 2000);
+      
+      setAnalysis({
+        totalAporte: result.investmentAmount,
+        recommendations: result.recommendations.map(rec => ({
+          codigo: rec.fiiCode,
+          nome: rec.fiiCode, // We'll improve this with a FII name lookup
+          valor: rec.suggestedAmount,
+          percentual: (rec.suggestedAmount / result.investmentAmount) * 100,
+          setor: 'N/A', // Can be improved with sector mapping
+          justificativa: rec.reason,
+          priority: rec.priority
+        })),
+        reasoning: result.strategy,
+        expectedYield: result.expectedYield,
+        hasExistingPortfolio: result.hasExistingPortfolio
+      });
+      
+      toast.success('Recomendações geradas com sucesso!');
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error(error instanceof Error ? error.message : 'Erro ao gerar recomendações');
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -126,6 +155,33 @@ export default function DirecionarAportesPage() {
                 onChange={(e) => setAporteValue(e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="risk-tolerance">Tolerância ao Risco</Label>
+              <Select value={riskTolerance} onValueChange={(value: any) => setRiskTolerance(value)}>
+                <SelectTrigger id="risk-tolerance">
+                  <SelectValue placeholder="Selecione sua tolerância ao risco" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CONSERVADOR">Conservador</SelectItem>
+                  <SelectItem value="MODERADO">Moderado</SelectItem>
+                  <SelectItem value="ARROJADO">Arrojado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="investment-goal">Objetivo de Investimento</Label>
+            <Select value={investmentGoal} onValueChange={(value: any) => setInvestmentGoal(value)}>
+              <SelectTrigger id="investment-goal">
+                <SelectValue placeholder="Selecione seu objetivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="RENDA">Foco em Renda</SelectItem>
+                <SelectItem value="CRESCIMENTO">Foco em Crescimento</SelectItem>
+                <SelectItem value="BALANCEADO">Balanceado</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">
@@ -141,13 +197,13 @@ export default function DirecionarAportesPage() {
 
           <Button 
             onClick={handleAnalyze} 
-            disabled={!aporteValue || isAnalyzing}
+            disabled={!aporteValue || investmentMutation.isPending}
             className="w-full md:w-auto"
           >
-            {isAnalyzing ? (
+            {investmentMutation.isPending ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Analisando...
+                Analisando com IA...
               </>
             ) : (
               <>
@@ -156,6 +212,13 @@ export default function DirecionarAportesPage() {
               </>
             )}
           </Button>
+          
+          {investmentMutation.error && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-700 border border-red-200">
+              <AlertCircle className="h-4 w-4" />
+              <p className="text-sm">{investmentMutation.error.message}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -179,6 +242,30 @@ export default function DirecionarAportesPage() {
                 <p className="text-sm text-muted-foreground">{analysis.reasoning}</p>
               </div>
 
+              {/* Portfolio Status */}
+              {analysis.hasExistingPortfolio && (
+                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <PieChart className="h-4 w-4 text-blue-600" />
+                    <p className="text-sm font-medium text-blue-900">Carteira Atual Considerada</p>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Analisamos sua carteira atual para sugerir aportes que otimizem sua diversificação.
+                  </p>
+                </div>
+              )}
+              
+              {/* Expected Yield */}
+              {analysis.expectedYield && (
+                <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <p className="text-sm font-medium text-green-900">Yield Esperado</p>
+                  </div>
+                  <p className="text-lg font-semibold text-green-700">{analysis.expectedYield.toFixed(2)}% ao ano</p>
+                </div>
+              )}
+
               {/* Recommendations */}
               <div className="space-y-4">
                 {analysis.recommendations.map((rec: any, index: number) => (
@@ -189,10 +276,17 @@ export default function DirecionarAportesPage() {
                           <h4 className="font-semibold">{rec.codigo}</h4>
                           <p className="text-sm text-muted-foreground">{rec.nome}</p>
                         </div>
-                        <Badge variant="secondary">{rec.setor}</Badge>
+                        <div className="flex gap-2">
+                          {rec.priority && (
+                            <Badge variant={rec.priority === 'ALTA' ? 'default' : rec.priority === 'MÉDIA' ? 'secondary' : 'outline'}>
+                              {rec.priority}
+                            </Badge>
+                          )}
+                          {rec.setor !== 'N/A' && <Badge variant="secondary">{rec.setor}</Badge>}
+                        </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-lg">{rec.percentual}%</p>
+                        <p className="font-semibold text-lg">{rec.percentual.toFixed(1)}%</p>
                         <p className="text-sm text-muted-foreground">{formatCurrency(rec.valor)}</p>
                       </div>
                     </div>
