@@ -60,7 +60,10 @@ export async function POST(request: NextRequest) {
         userPortfolioId: portfolioId,
         analysisType: 'PORTFOLIO_EVALUATION',
         summary: analysis.summary,
-        currentAllocation: analysis.sectorAnalysis.distribution,
+        currentAllocation: {
+          distribution: analysis.sectorAnalysis.distribution,
+          sectorRecommendations: analysis.sectorAnalysis.recommendations
+        },
         riskAssessment: {
           overallScore: analysis.overallScore,
           riskLevel: analysis.riskLevel,
@@ -124,14 +127,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Reconstruct analysis from stored data
+    const currentAllocation = latestReport.currentAllocation as any;
     const analysis: FIIAnalysisResult = {
       overallScore: (latestReport.riskAssessment as any).overallScore,
       riskLevel: (latestReport.riskAssessment as any).riskLevel,
       diversificationScore: (latestReport.riskAssessment as any).diversificationScore,
       concentrationRisk: (latestReport.riskAssessment as any).concentrationRisk,
       sectorAnalysis: {
-        distribution: latestReport.currentAllocation as Record<string, number>,
-        recommendations: latestReport.recommendations as string[]
+        distribution: currentAllocation.distribution || currentAllocation,
+        recommendations: currentAllocation.sectorRecommendations || []
       },
       performanceAnalysis: latestReport.performanceMetrics as any,
       recommendations: latestReport.recommendations as string[],
