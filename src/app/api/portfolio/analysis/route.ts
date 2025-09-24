@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { PrismaClient } from '@prisma/client';
+import { db } from '@/lib/db';
 import { analyzeFIIPortfolio, type PortfolioData, type FIIAnalysisResult } from '@/lib/openai';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the portfolio
-    const portfolio = await prisma.userPortfolio.findUnique({
+    const portfolio = await db.userPortfolio.findUnique({
       where: { id: portfolioId }
     });
 
@@ -54,7 +52,7 @@ export async function POST(request: NextRequest) {
     const analysis: FIIAnalysisResult = await analyzeFIIPortfolio(portfolioData);
 
     // Save analysis to database
-    const analysisReport = await prisma.analysisReport.create({
+    const analysisReport = await db.analysisReport.create({
       data: {
         userId,
         userPortfolioId: portfolioId,
@@ -106,7 +104,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify portfolio ownership
-    const portfolio = await prisma.userPortfolio.findUnique({
+    const portfolio = await db.userPortfolio.findUnique({
       where: { id: portfolioId }
     });
 
@@ -115,7 +113,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get latest analysis report
-    const latestReport = await prisma.analysisReport.findFirst({
+    const latestReport = await db.analysisReport.findFirst({
       where: { userPortfolioId: portfolioId },
       orderBy: { generatedAt: 'desc' }
     });
