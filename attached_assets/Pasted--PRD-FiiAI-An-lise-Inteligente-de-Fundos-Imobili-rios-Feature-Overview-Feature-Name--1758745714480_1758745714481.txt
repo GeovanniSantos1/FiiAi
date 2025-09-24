@@ -1,0 +1,301 @@
+# PRD - FiiAI: Análise Inteligente de Fundos Imobiliários
+
+## Feature Overview
+**Feature Name**: FiiAI - Plataforma de Análise de Fundos Imobiliários  
+**Description**: Transformar o template SaaS em uma plataforma especializada para análise inteligente de carteiras de FIIs com 2 agentes de IA e painel administrativo para gestão de carteira recomendada  
+**Priority**: High  
+**Estimated Effort**: Large  
+
+## Feature Planning
+
+### 1. Plan
+**Objective**: Criar uma plataforma completa para análise e recomendação de investimentos em Fundos Imobiliários
+
+#### Requirements
+
+##### Functional Requirements
+- **Branding completo**: Alterar identidade visual para FiiAI com cores dourado/preto
+- **Landing Page**: 3 seções principais (Recursos, Agentes, Planos)
+- **Sistema de Agentes IA**: 2 agentes especializados em FIIs
+- **Upload de Excel**: Sistema para importar carteira atual do usuário
+- **Painel Admin**: Interface para configurar carteira recomendada
+- **Sistema de Créditos**: Integrado com uso dos agentes
+- **Dashboard do Usuário**: Visualização de análises e recomendações
+
+##### Non-Functional Requirements
+- **Performance**: Processamento de Excel até 1000 FIIs
+- **Security**: Dados financeiros sensíveis protegidos
+- **Usabilidade**: Interface intuitiva para investidores
+
+#### Technical Specifications
+
+##### Database Changes (Prisma)
+Novas tabelas necessárias:
+
+```prisma
+model RecommendedPortfolio {
+  id          String   @id @default(cuid())
+  ticker      String   @unique
+  allocation  Float    // Percentual recomendado
+  pvp         Float
+  dyAnualized Float
+  dyLtm       Float
+  liquidez    Float
+  sector      String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserPortfolio {
+  id        String   @id @default(cuid())
+  userId    String   // Clerk User ID
+  ticker    String
+  quantity  Int
+  avgPrice  Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, ticker])
+}
+
+model AnalysisReport {
+  id           String   @id @default(cuid())
+  userId       String   // Clerk User ID
+  type         AnalysisType
+  inputData    Json     // Dados da carteira enviada
+  result       Json     // Resultado da análise
+  creditsUsed  Int
+  createdAt    DateTime @default(now())
+}
+
+enum AnalysisType {
+  PORTFOLIO_EVALUATION
+  INVESTMENT_RECOMMENDATION
+}
+
+model InvestmentRecommendation {
+  id              String   @id @default(cuid())
+  userId          String   // Clerk User ID
+  investmentAmount Float
+  recommendations Json     // Lista de FIIs recomendados
+  reasoning       String   // Explicação da recomendação
+  creditsUsed     Int
+  createdAt       DateTime @default(now())
+}
+```
+
+##### API Endpoints
+
+**Análise de Carteira:**
+- `POST /api/agents/portfolio-evaluation` - Upload Excel + análise
+- `GET /api/portfolio/user/:userId` - Carteira do usuário
+
+**Recomendação de Aportes:**
+- `POST /api/agents/investment-recommendation` - Recomendação de aportes
+- `GET /api/recommendations/user/:userId` - Histórico de recomendações
+
+**Admin - Carteira Recomendada:**
+- `GET /api/admin/recommended-portfolio` - Listar carteira recomendada
+- `POST /api/admin/recommended-portfolio` - Criar/atualizar FII recomendado
+- `PUT /api/admin/recommended-portfolio/:ticker` - Atualizar FII
+- `DELETE /api/admin/recommended-portfolio/:ticker` - Remover FII
+
+**Upload de Arquivos:**
+- `POST /api/upload/portfolio-excel` - Upload de planilha da carteira
+
+##### UI Components Necessários
+
+**Novos componentes:**
+- `PortfolioUploader` - Upload de Excel da carteira
+- `AgentCard` - Card dos agentes na landing
+- `PortfolioTable` - Tabela de FIIs da carteira
+- `RecommendationCard` - Card de recomendação de aporte
+- `AdminPortfolioManager` - Tabela administrativa da carteira recomendada
+- `AnalysisResults` - Visualização dos resultados das análises
+
+**Componentes a modificar:**
+- `Header` - Novo menu (Recursos, Agentes, Planos)
+- `Footer` - Branding FiiAI
+- `LandingPage` - Nova estrutura focada em FIIs
+
+#### Architecture Considerations
+
+##### Authentication & Authorization
+- **Usuários regulares**: Acesso aos agentes e dashboard
+- **Admin**: Acesso adicional ao painel de carteira recomendada
+- **Clerk**: Mantém sistema atual de autenticação
+
+##### State Management
+- **React Query**: Cache de dados da carteira e recomendações
+- **Client state**: Upload de arquivos e resultados temporários
+
+##### Routing
+**Novas rotas públicas:**
+- `/` - Landing page FiiAI
+- `/recursos` - Página de recursos (opcional)
+- `/agentes` - Página dos agentes
+- `/planos` - Página de planos
+
+**Novas rotas protegidas:**
+- `/dashboard` - Dashboard do usuário
+- `/carteira` - Visualização da carteira atual
+- `/analises` - Histórico de análises
+- `/recomendacoes` - Histórico de recomendações
+- `/admin/carteira-recomendada` - Painel admin da carteira
+
+#### Technology Research
+
+##### Dependencies
+**Novas dependências:**
+- `xlsx` - Leitura de arquivos Excel
+- `recharts` - Gráficos para visualização de dados
+- `react-dropzone` - Upload de arquivos drag&drop
+
+##### Best Practices
+- **Upload seguro**: Validação rigorosa de arquivos Excel
+- **Processamento assíncrono**: Jobs em background para análises pesadas
+- **Cache**: Resultados de análises em cache por 24h
+- **Rate limiting**: Limitar uploads por usuário
+
+#### Créditos e Custos
+
+**Features de consumo de créditos:**
+- `fii_portfolio_analysis` - 10 créditos por análise
+- `fii_investment_recommendation` - 5 créditos por recomendação
+
+### 2. Phases
+
+#### Phase 1: Setup e Branding (Semana 1)
+**Objective**: Estabelecer identidade visual e estrutura básica
+
+**Tasks:**
+- [ ] Atualizar `brand-config.ts` com identidade FiiAI
+- [ ] Redesenhar landing page com seções Recursos/Agentes/Planos
+- [ ] Atualizar cores para esquema dourado/preto
+- [ ] Configurar rotas básicas
+- [ ] Criar componentes base (AgentCard, etc.)
+
+**Completion Criteria:**
+- Landing page funcional com nova identidade
+- Sistema de navegação implementado
+- Componentes UI básicos criados
+
+#### Phase 2: Database e Admin (Semana 2)
+**Objective**: Estrutura de dados e painel administrativo
+
+**Tasks:**
+- [ ] Criar migrations Prisma para novas tabelas
+- [ ] Implementar APIs admin para carteira recomendada
+- [ ] Desenvolver painel admin `/admin/carteira-recomendada`
+- [ ] Sistema CRUD completo para FIIs recomendados
+- [ ] Importação inicial de dados de exemplo
+
+**Completion Criteria:**
+- Banco estruturado e funcional
+- Admin consegue gerenciar carteira recomendada
+- Dados de exemplo inseridos
+
+#### Phase 3: Upload e Processamento (Semana 3)
+**Objective**: Sistema de upload e processamento de Excel
+
+**Tasks:**
+- [ ] Implementar componente PortfolioUploader
+- [ ] API para processamento de Excel (`POST /api/upload/portfolio-excel`)
+- [ ] Validação e sanitização de dados
+- [ ] Armazenamento da carteira do usuário no banco
+- [ ] Interface de visualização da carteira atual
+
+**Completion Criteria:**
+- Upload de Excel funcional
+- Carteira processada e armazenada
+- Visualização da carteira implementada
+
+#### Phase 4: Agente 1 - Avaliador de Carteiras (Semana 4)
+**Objective**: Primeiro agente de análise de carteira
+
+**Tasks:**
+- [ ] API `/api/agents/portfolio-evaluation`
+- [ ] Lógica de análise vs carteira recomendada
+- [ ] Integração com sistema de créditos
+- [ ] Interface para exibir resultados da análise
+- [ ] Sistema de sugestões personalizadas
+
+**Completion Criteria:**
+- Agente funcional e consumindo créditos
+- Análise detalhada da carteira
+- Sugestões de otimização geradas
+
+#### Phase 5: Agente 2 - Direcionador de Aportes (Semana 5)
+**Objective**: Segundo agente para recomendações de aportes
+
+**Tasks:**
+- [ ] API `/api/agents/investment-recommendation`
+- [ ] Lógica de recomendação baseada em valor de aporte
+- [ ] Cálculo de distribuição otimizada
+- [ ] Interface para inserir valor de aporte
+- [ ] Visualização das recomendações
+
+**Completion Criteria:**
+- Agente de recomendação funcional
+- Cálculos precisos de distribuição
+- Interface intuitiva para aportes
+
+#### Phase 6: Dashboard e Refinamentos (Semana 6)
+**Objective**: Dashboard completo e ajustes finais
+
+**Tasks:**
+- [ ] Dashboard principal com resumo da carteira
+- [ ] Histórico de análises e recomendações
+- [ ] Gráficos e visualizações
+- [ ] Testes completos do sistema
+- [ ] Ajustes de performance e UX
+- [ ] Documentação final
+
+**Completion Criteria:**
+- Sistema completo e funcional
+- Performance otimizada
+- Testes realizados
+- Documentação atualizada
+
+### 3. Credit System Integration
+
+**Feature Costs:**
+```typescript
+// Em src/lib/credits/feature-config.ts
+export const FEATURE_CREDIT_COSTS = {
+  fii_portfolio_analysis: 10,
+  fii_investment_recommendation: 5,
+}
+```
+
+**Plan Suggestions:**
+- **Plano Básico**: 50 créditos/mês (5 análises completas)
+- **Plano Intermediário**: 150 créditos/mês (15 análises ou 30 recomendações)
+- **Plano Premium**: 500 créditos/mês (uso intensivo)
+
+### 4. Success Metrics
+- [ ] Sistema de upload processando 100% dos Excels válidos
+- [ ] Tempo de análise < 10 segundos
+- [ ] Taxa de erro < 1% nas recomendações
+- [ ] Admin consegue atualizar carteira recomendada
+- [ ] Sistema de créditos funcionando corretamente
+- [ ] Interface responsiva em mobile/desktop
+
+### 5. Risk Assessment
+**Technical Risks:**
+- Processamento de Excel grandes pode ser lento
+- Cálculos financeiros precisam ser validados
+- Integração com dados de mercado em tempo real
+
+**Mitigation:**
+- Implementar processamento assíncrono
+- Validar cálculos com especialista financeiro
+- Usar dados mockados inicialmente, API real depois
+
+### 6. Post-Launch Enhancements
+- Integração com APIs de dados de FIIs em tempo real
+- Alertas automáticos de rebalanceamento
+- Relatórios PDF exportáveis
+- Sistema de favoritos para FIIs
+- Comparação histórica de performance

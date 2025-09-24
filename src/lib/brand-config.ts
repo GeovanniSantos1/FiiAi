@@ -18,13 +18,13 @@ export type AnalyticsConfig = {
 }
 
 export const site = {
-  name: 'AI Coders Academy – Next.js SaaS Template',
-  shortName: 'AI Coders SaaS',
+  name: 'FiiAI - Análise Inteligente de Fundos Imobiliários',
+  shortName: 'FiiAI',
   description:
-    'Template Next.js pronto para produção pela AI Coders Academy: autenticação, banco de dados, pagamentos e sistema de créditos incluídos.',
+    'Plataforma de análise inteligente de carteiras de FIIs com agentes especializados para otimizar seus investimentos em fundos imobiliários.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  author: 'AI Coders Academy (Vinicius Lana)',
-  keywords: ['SaaS', 'Next.js', 'TypeScript', 'Clerk', 'Prisma', 'Tailwind CSS', 'AI Coders Academy', 'Template', 'Microsaas'],
+  author: 'FiiAI',
+  keywords: ['FII', 'Fundos Imobiliários', 'Investimentos', 'IA', 'Análise', 'Carteira', 'Recomendações', 'Real Estate', 'REIT'],
   ogImage: '/og-image.png',
   logo: {
     light: '/logo-light.svg',
@@ -36,10 +36,10 @@ export const site = {
     shortcut: '/favicon-16x16.png',
   } as IconPaths,
   socials: {
-    twitter: '@aicodersacademy',
+    twitter: '@FiiAI_oficial',
   },
   support: {
-    email: 'suporte@aicoders.academy',
+    email: 'suporte@fiiai.com',
   },
   analytics: {
     gtmId: process.env.NEXT_PUBLIC_GTM_ID,

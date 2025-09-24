@@ -8,10 +8,10 @@ import { cn } from '@/lib/utils'
 import { site } from '@/lib/brand-config'
 
 const menuItems = [
-  { name: 'Recursos', href: '#features' },
-  { name: 'Preços', href: '#pricing' },
-  { name: 'FAQ', href: '#faq' },
-  { name: 'Sobre', href: '/' },
+  { name: 'Recursos', href: '#recursos' },
+  { name: 'Agentes', href: '#agentes' },
+  { name: 'Planos', href: '#pricing' },
+  { name: 'Dashboard', href: '/dashboard' },
 ]
 
 export function PublicHeader() {
