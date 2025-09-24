@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   // Configure for Replit environment
   serverExternalPackages: ['@prisma/client'],
+  // Allow cross-origin requests for Replit proxy
+  allowedDevOrigins: ['f81561b4-03d6-4284-88be-174420d2dab7-00-g127c3pfumcx.spock.replit.dev', '127.0.0.1'],
   images: {
     remotePatterns: [
       {
