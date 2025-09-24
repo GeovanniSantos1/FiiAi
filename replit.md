@@ -3,13 +3,21 @@
 ## Overview
 This is a complete Next.js SaaS template with authentication (Clerk), PostgreSQL database, AI chat features, billing/subscription management, and admin panel. The project has been successfully configured to run in the Replit environment.
 
-## Recent Changes (Setup)
+## Recent Changes
 - **2024-09-24**: Initial project setup in Replit environment
   - Created PostgreSQL database and configured connection
   - Set up environment variables for Replit hosting
   - Configured Next.js for Replit proxy environment
   - Set up workflow to serve on port 5000
   - Configured deployment settings for production
+
+- **2024-09-24**: FiiAI Platform Transformation
+  - Removed forced subscription redirects from protected layout
+  - Created FiiAI-specific agent pages: Avaliador de Carteiras and Direcionador de Aportes
+  - Implemented admin permission system with email-based access control
+  - Updated sidebar navigation with FiiAI agents and conditional admin access
+  - Configured environment variables for admin email management
+  - Fixed post-login flow to provide direct access to dashboard and agents
 
 ## Project Architecture
 - **Frontend**: Next.js 15 with App Router
@@ -54,15 +62,22 @@ To fully use the application, users need to:
 
 ## Features Available
 - Landing page with marketing content
-- User authentication (requires Clerk setup)
-- Protected dashboard area
-- AI chat functionality (requires API keys)
-- Admin panel for user/credit management
+- User authentication (Clerk configured and working)
+- Protected dashboard area with direct access post-login
+- FiiAI Agents:
+  - Avaliador de Carteiras (Portfolio Evaluator)
+  - Direcionador de Aportes (Investment Director)
+- Admin-only features:
+  - Carteiras Recomendadas (Recommended Portfolios)
+- Excel file upload functionality for portfolio analysis
 - Billing and subscription management
-- File upload capabilities
+- User profile management
 
 ## Development Notes
 - Uses `--legacy-peer-deps` for npm install due to zod version conflicts
 - Prisma client is generated automatically in the workflow
 - Database schema is ready and migrated
 - TypeScript configuration ignores build errors for faster development
+- Admin access controlled via NEXT_PUBLIC_ADMIN_EMAILS environment variable
+- FiiAI agents reuse existing portfolio upload and analysis components
+- Authentication flow bypasses subscription requirements for immediate agent access
