@@ -47,19 +47,8 @@ export default function ProtectedLayout({
     }
   }, [isLoaded, isSignedIn, router]);
 
-  // After auth, verify subscription access. Allow billing page even without plan.
-  React.useEffect(() => {
-    if (!isLoaded || !isSignedIn || isLoadingSubscription) return;
-
-    const isActive = Boolean(subscriptionStatus?.isActive);
-    // Allow access to billing and subscribe pages even without active subscription
-    const allowedPaths = ['/subscribe', '/billing'];
-    const isOnAllowedPath = allowedPaths.some(path => pathname.startsWith(path));
-
-    if (!isActive && !isOnAllowedPath) {
-      router.replace('/subscribe');
-    }
-  }, [isLoaded, isSignedIn, isLoadingSubscription, subscriptionStatus?.isActive, pathname, router]);
+  // Optional: Show subscription prompt for premium features only
+  // Users can access all FiiAI agents without forced subscription
 
   // Show loading state while checking authentication
   if (!isLoaded || isLoadingSubscription) {

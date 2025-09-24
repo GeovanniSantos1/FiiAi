@@ -11,6 +11,9 @@ import {
   User,
   Settings,
   Bot,
+  TrendingUp,
+  Target,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,7 +31,9 @@ type SidebarProps = {
 
 export const navigationItems = [
   { name: "Painel", href: "/dashboard", icon: Home },
-  { name: "Chat com IA", href: "/ai-chat", icon: Bot },
+  { name: "Avaliador de Carteiras", href: "/dashboard/avaliar-carteira", icon: TrendingUp },
+  { name: "Direcionador de Aportes", href: "/dashboard/direcionar-aportes", icon: Target },
+  { name: "Carteiras Recomendadas", href: "/admin/carteiras", icon: Building2 },
   { name: "Cobrança", href: "/billing", icon: CreditCard },
   { name: "Perfil", href: "/profile", icon: User },
 ];
@@ -51,7 +56,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             <Settings className="h-5 w-5" />
           </div>
           {!collapsed && (
-            <span className="text-lg font-semibold">SaaS Template</span>
+            <span className="text-lg font-semibold">FiiAI</span>
           )}
         </Link>
         <div className="ml-auto">
