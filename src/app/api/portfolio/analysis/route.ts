@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { analyzeFIIPortfolio, type PortfolioData, type FIIAnalysisResult } from '@/lib/openai';
+import { NotificationService } from '@/lib/notification-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,6 +83,18 @@ export async function POST(request: NextRequest) {
         creditsUsed: 15
       }
     });
+
+    // Create notification for completed analysis
+    try {
+      await NotificationService.notifyAnalysisComplete(
+        internalUser.id,
+        'PORTFOLIO_EVALUATION',
+        portfolio.originalFileName
+      );
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+      // Continue without failing the main request
+    }
 
     return NextResponse.json({
       success: true,

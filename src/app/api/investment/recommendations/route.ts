@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { generateInvestmentRecommendations, type PortfolioData } from '@/lib/openai';
+import { NotificationService } from '@/lib/notification-service';
 
 interface InvestmentRequest {
   investmentAmount: number;
@@ -131,6 +132,18 @@ export async function POST(request: NextRequest) {
         creditsUsed: requiredCredits
       }
     });
+
+    // Create notification for completed investment recommendation
+    try {
+      await NotificationService.notifyAnalysisComplete(
+        internalUser.id,
+        'INVESTMENT_RECOMMENDATION',
+        userPortfolio?.originalFileName
+      );
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+      // Continue without failing the main request
+    }
 
     return NextResponse.json({
       success: true,

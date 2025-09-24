@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Menu } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { CreditStatus } from "@/components/credits/credit-status";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import { navigationItems } from "@/components/app/sidebar";
 
@@ -112,6 +113,7 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
         <div className="flex items-center gap-2">
           <SignedIn>
             <CreditStatus />
+            <NotificationBell />
             <Separator orientation="vertical" className="h-6" />
           </SignedIn>
           
