@@ -16,12 +16,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Portfolio ID is required' }, { status: 400 });
     }
 
+    // Find the internal user by Clerk ID
+    const internalUser = await db.user.findUnique({
+      where: { clerkId: userId }
+    });
+
+    if (!internalUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     // Get the portfolio
     const portfolio = await db.userPortfolio.findUnique({
       where: { id: portfolioId }
     });
 
-    if (!portfolio || portfolio.userId !== userId) {
+    if (!portfolio || portfolio.userId !== internalUser.id) {
       return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
     }
 
@@ -54,7 +63,7 @@ export async function POST(request: NextRequest) {
     // Save analysis to database
     const analysisReport = await db.analysisReport.create({
       data: {
-        userId,
+        userId: internalUser.id,
         userPortfolioId: portfolioId,
         analysisType: 'PORTFOLIO_EVALUATION',
         summary: analysis.summary,
@@ -103,12 +112,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Portfolio ID is required' }, { status: 400 });
     }
 
+    // Find the internal user by Clerk ID
+    const internalUser = await db.user.findUnique({
+      where: { clerkId: userId }
+    });
+
+    if (!internalUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     // Verify portfolio ownership
     const portfolio = await db.userPortfolio.findUnique({
       where: { id: portfolioId }
     });
 
-    if (!portfolio || portfolio.userId !== userId) {
+    if (!portfolio || portfolio.userId !== internalUser.id) {
       return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
     }
 
