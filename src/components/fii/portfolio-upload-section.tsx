@@ -1,24 +1,40 @@
 "use client"
 
-import React from "react";
+import React, { useState } from "react";
 import { PortfolioUploader } from "./portfolio-uploader";
 import { usePortfolioUpload } from "@/hooks/use-portfolio-upload";
+import { usePortfolioAnalysis } from "@/hooks/use-portfolio-analysis";
+import { PortfolioAnalysisSection } from "./portfolio-analysis-section";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, TrendingUp, PieChart, Target } from "lucide-react";
+import { FileSpreadsheet, TrendingUp, PieChart, Target, Brain } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export function PortfolioUploadSection() {
   const { uploading, uploadResult, uploadPortfolio, clearResult } = usePortfolioUpload();
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const { analyzePortfolio, isAnalyzing } = usePortfolioAnalysis(uploadResult?.id);
 
   const handleUpload = async (file: File) => {
     try {
       await uploadPortfolio(file);
+      setShowAnalysis(false); // Reset analysis view when new upload
     } catch (error) {
       // Error is already handled in the hook
       console.error("Upload failed:", error);
     }
+  };
+
+  const handleAnalyzePortfolio = () => {
+    if (uploadResult?.id) {
+      analyzePortfolio(uploadResult.id);
+      setShowAnalysis(true);
+    }
+  };
+
+  const handleViewRecommendations = () => {
+    setShowAnalysis(true);
   };
 
   if (uploadResult) {
@@ -124,17 +140,43 @@ export function PortfolioUploadSection() {
             )}
 
             <div className="mt-6 flex gap-3">
-              <Button className="flex-1">
-                <Target className="mr-2 h-4 w-4" />
-                Analisar Carteira
+              <Button 
+                className="flex-1" 
+                onClick={handleAnalyzePortfolio}
+                disabled={isAnalyzing || !uploadResult?.id}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Analisando...
+                  </>
+                ) : (
+                  <>
+                    <Brain className="mr-2 h-4 w-4" />
+                    Analisar Carteira
+                  </>
+                )}
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={handleViewRecommendations}
+                disabled={!uploadResult?.id}
+              >
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Ver Recomendações
               </Button>
             </div>
           </CardContent>
         </Card>
+        
+        {/* Show analysis section when requested */}
+        {showAnalysis && uploadResult?.id && (
+          <PortfolioAnalysisSection 
+            portfolioId={uploadResult.id}
+            portfolioName={"Sua Carteira"}
+          />
+        )}
       </div>
     );
   }
