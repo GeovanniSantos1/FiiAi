@@ -34,10 +34,6 @@ outputType = "webview"
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 42119
-externalPort = 3000
-
 [deployment]
 deploymentTarget = "autoscale"
 build = ["bash", "-c", "npm install --legacy-peer-deps && npx prisma generate && npm run build"]

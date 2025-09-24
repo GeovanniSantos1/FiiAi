@@ -127,10 +127,26 @@ function validatePortfolioPosition(position: any): PortfolioPosition | null {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { userId: clerkUserId } = await auth();
     
-    if (!userId) {
+    if (!clerkUserId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Find or create user in our database using Clerk ID
+    let user = await db.user.findUnique({
+      where: { clerkId: clerkUserId }
+    });
+
+    if (!user) {
+      // Create user if doesn't exist
+      user = await db.user.create({
+        data: {
+          clerkId: clerkUserId,
+          email: '', // Will be updated by webhook
+          isActive: true
+        }
+      });
     }
 
     const formData = await request.formData();
@@ -268,7 +284,7 @@ export async function POST(request: NextRequest) {
     // Save to database
     const userPortfolio = await db.userPortfolio.create({
       data: {
-        userId,
+        userId: user.id, // Use our internal user ID, not Clerk ID
         originalFileName: file.name,
         positions: positionsWithPercentage,
         totalValue,
