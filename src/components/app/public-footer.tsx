@@ -6,7 +6,7 @@ export function PublicFooter() {
     <footer className="border-t mt-24">
       <div className="container mx-auto px-4 py-10 text-sm text-muted-foreground flex flex-col md:flex-row gap-4 items-center justify-between">
         <p>
-          © {new Date().getFullYear()} {site.name}. Todos os direitos reservados. Feito por <Link className="hover:text-foreground" href="https://aicoders.academy">AI Coders Academy</Link>
+          © 2025 {site.name}. Todos os direitos reservados. Feito por <Link className="hover:text-foreground" href="https://aicoders.academy">AI Coders Academy</Link>
         </p>
         <nav className="flex items-center gap-6">
           <Link className="hover:text-foreground" href="#features">Funcionalidades</Link>
