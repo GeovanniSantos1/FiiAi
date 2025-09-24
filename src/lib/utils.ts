@@ -10,3 +10,10 @@ export function generateApiKey(): string {
   const bytes = randomBytes(32);
   return bytes.toString('hex');
 }
+
+export function formatCurrency(value: number, currency = 'BRL'): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency,
+  }).format(value);
+}
