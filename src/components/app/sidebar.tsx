@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAdmin } from "@/hooks/use-admin";
 import {
   ChevronLeft,
   ChevronRight,
@@ -33,13 +34,21 @@ export const navigationItems = [
   { name: "Painel", href: "/dashboard", icon: Home },
   { name: "Avaliador de Carteiras", href: "/dashboard/avaliar-carteira", icon: TrendingUp },
   { name: "Direcionador de Aportes", href: "/dashboard/direcionar-aportes", icon: Target },
-  { name: "Carteiras Recomendadas", href: "/admin/carteiras", icon: Building2 },
   { name: "Cobrança", href: "/billing", icon: CreditCard },
   { name: "Perfil", href: "/profile", icon: User },
 ];
 
+export const adminNavigationItems = [
+  { name: "Carteiras Recomendadas", href: "/admin/carteira-recomendada", icon: Building2 },
+];
+
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const { isAdmin } = useAdmin();
+  
+  const allNavigationItems = isAdmin 
+    ? [...navigationItems, ...adminNavigationItems]
+    : navigationItems;
 
   return (
     <aside
@@ -73,7 +82,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       
       <ScrollArea className="h-[calc(100vh-3.5rem)]">
         <nav className="flex flex-col gap-1 p-2" aria-label="Navegação principal">
-          {navigationItems.map((item) => {
+          {allNavigationItems.map((item) => {
             const isActive = pathname === item.href;
             const link = (
               <Link
