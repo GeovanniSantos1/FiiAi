@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { isAdmin } from "@/lib/admin-utils"
 import { db } from "@/lib/db"
-import { getPlanCredits } from "@/lib/credits/settings"
 
 const InviteSchema = z.object({
   email: z.string().email(),
@@ -34,22 +33,15 @@ export async function POST(request: Request) {
         firstName?: string;
       }
 
-      // Ensure local DB user and credit balance exist
+      // Ensure local DB user exists
       const existingDbUser = await db.user.findUnique({ where: { clerkId: user.id } })
       if (!existingDbUser) {
         const primary = user.emailAddresses?.find((e) => e.id === user.primaryEmailAddressId) || user.emailAddresses?.[0]
-        const created = await db.user.create({
+        await db.user.create({
           data: {
             clerkId: user.id,
             email: primary?.emailAddress ?? email,
             name: name || user.firstName || null,
-          },
-        })
-        await db.creditBalance.create({
-          data: {
-            userId: created.id,
-            clerkUserId: user.id,
-            creditsRemaining: await getPlanCredits('free'),
           },
         })
       }
