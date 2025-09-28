@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import * as XLSX from 'xlsx';
+import { put } from '@vercel/blob';
 
 // Interface for portfolio position
 interface PortfolioPosition {
@@ -178,6 +179,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Save file to Vercel Blob first
+    let blobUrl: string | undefined;
+    let blobPathname: string | undefined;
+    
+    try {
+      const ext = file.name?.split('.').pop()?.toLowerCase() || 'xlsx';
+      const safeName = file.name?.replace(/[^a-z0-9._-]/gi, '_') || `portfolio.${ext}`;
+      const key = `portfolios/${clerkUserId}/${Date.now()}-${safeName}`;
+      const token = process.env.BLOB_READ_WRITE_TOKEN;
+      
+      if (token) {
+        const uploaded = await put(key, file, { access: 'public', token });
+        blobUrl = uploaded.url;
+        blobPathname = uploaded.pathname;
+        
+        // Register in StorageObject table
+        await db.storageObject.create({
+          data: {
+            userId: user.id,
+            clerkUserId: clerkUserId,
+            provider: 'vercel_blob',
+            url: uploaded.url,
+            pathname: uploaded.pathname,
+            name: file.name || safeName,
+            contentType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            size: file.size,
+          },
+        });
+      }
+    } catch (blobError) {
+      console.error('Failed to save file to blob storage:', blobError);
+      // Continue processing even if blob storage fails
+    }
+
     // Read file
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -300,6 +335,11 @@ export async function POST(request: NextRequest) {
         positionsCount: positions.length,
         skippedRows,
         positions: positionsWithPercentage.slice(0, 5), // Preview only
+      },
+      storage: {
+        saved: !!blobUrl,
+        url: blobUrl,
+        pathname: blobPathname
       },
       message: `Portfolio uploaded successfully! ${positions.length} positions imported${skippedRows > 0 ? `, ${skippedRows} rows skipped due to invalid data.` : '.'}`
     });
