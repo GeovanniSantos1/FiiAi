@@ -63,18 +63,6 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Check user credits before proceeding
-    const creditBalance = await db.creditBalance.findUnique({
-      where: { userId: internalUser.id }
-    });
-
-    const requiredCredits = 8;
-    if (!creditBalance || creditBalance.creditsRemaining < requiredCredits) {
-      return NextResponse.json({ 
-        error: `Créditos insuficientes. Você precisa de ${requiredCredits} créditos para esta análise.` 
-      }, { status: 402 });
-    }
-
     // Create user profile from request data and preferences
     const userProfile = {
       investmentGoal: investmentGoal || 'BALANCEADO',
@@ -85,26 +73,6 @@ export async function POST(request: NextRequest) {
 
     // Generate investment recommendations using OpenAI
     const recommendations = await generateInvestmentRecommendations(portfolioData, userProfile);
-
-    // Deduct credits after successful generation
-    await db.creditBalance.update({
-      where: { userId: internalUser.id },
-      data: {
-        creditsRemaining: {
-          decrement: requiredCredits
-        }
-      }
-    });
-
-    // Log usage history
-    await db.usageHistory.create({
-      data: {
-        userId: internalUser.id,
-        creditBalanceId: creditBalance.id,
-        operationType: 'AI_TEXT_CHAT',
-        creditsUsed: requiredCredits
-      }
-    });
 
     // Save investment consultation to database for future reference
     const consultation = await db.analysisReport.create({
@@ -128,8 +96,7 @@ export async function POST(request: NextRequest) {
           expectedYield: recommendations.expectedYield,
           recommendations: recommendations.recommendations
         },
-        recommendations: recommendations.recommendations.map(rec => `${rec.fiiCode}: ${rec.reason}`),
-        creditsUsed: requiredCredits
+        recommendations: recommendations.recommendations.map(rec => `${rec.fiiCode}: ${rec.reason}`)
       }
     });
 
