@@ -8,7 +8,7 @@ import { Sidebar } from "@/components/app/sidebar";
 import { Topbar } from "@/components/app/topbar";
 import { PageHeader } from "@/components/app/page-header";
 import { PageMetadataProvider } from "@/contexts/page-metadata";
-import { useSubscription } from "@/hooks/use-subscription";
+// Subscription system removed - manual access control only
 
 export default function ProtectedLayout({
   children,
@@ -20,8 +20,7 @@ export default function ProtectedLayout({
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(false);
 
-  // Use TanStack Query for subscription status
-  const { data: subscriptionStatus, isLoading: isLoadingSubscription } = useSubscription();
+  // Subscription system removed - all authenticated users have access
 
   // hydrate from localStorage
   React.useEffect(() => {
@@ -51,7 +50,7 @@ export default function ProtectedLayout({
   // Users can access all FiiAI agents without forced subscription
 
   // Show loading state while checking authentication
-  if (!isLoaded || isLoadingSubscription) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
