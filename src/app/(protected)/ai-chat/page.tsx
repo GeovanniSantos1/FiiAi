@@ -12,8 +12,6 @@ import { usePageConfig } from '@/hooks/use-page-config'
 import { Bot, Loader2, Paperclip, Send, Square, Trash2, X as XIcon, Sparkles, Image as ImageIcon, MessageSquare } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { useCredits } from '@/hooks/use-credits'
-import { CreditStatus } from '@/components/credits/credit-status'
 import { useOpenRouterModels } from '@/hooks/use-openrouter-models'
 import { useGenerateImage } from '@/hooks/use-ai-image'
 
@@ -79,22 +77,10 @@ export default function AIChatPage() {
         .filter(a => a.status === 'done' && a.url)
         .map(a => ({ name: a.name, url: a.url! })),
     },
-    async onResponse(res) {
-      if (res.status === 402) {
-        try {
-          const data = await res.clone().json()
-          const msg = `Você não tem créditos. Necessário ${data?.required ?? ''}, disponível ${data?.available ?? ''}.\n\n[Ir para cobrança →](/billing)`
-          const id = `sys-nocred-${Date.now()}`
-          setMessages([...messages, { id, role: 'assistant', content: msg }])
-        } catch {
-          const id = `sys-nocred-${Date.now()}`
-          setMessages([...messages, { id, role: 'assistant', content: 'Você não tem créditos. [Ir para cobrança →](/billing)' }])
-        }
-      }
-    },
+    // Credit system removed
   })
 
-  const { credits, canPerformOperation, getCost, refresh } = useCredits()
+  // Credit system removed - all users have full access
 
   // Use TanStack Query for OpenRouter models
   const {
@@ -187,7 +173,7 @@ export default function AIChatPage() {
           .map(a => ({ name: a.name, url: a.url! })),
       })
 
-      refresh()
+      // refresh() removed
       const images: string[] = Array.isArray(result?.images) ? result.images : []
       const id1 = `u-${Date.now()}`
       const id2 = `a-${Date.now()}`
@@ -201,14 +187,8 @@ export default function AIChatPage() {
       const id1 = `u-${Date.now()}`
       const id2 = `a-${Date.now()}`
 
-      // Check if it's a credit error
-      if ((error as Error)?.message?.includes('402') || (error as Error)?.message?.includes('crédito')) {
-        setMessages([
-          ...messages,
-          { id: id1, role: 'user', content: prompt },
-          { id: id2, role: 'assistant', content: 'Você não tem créditos suficientes. [Ir para cobrança →](/billing)' },
-        ])
-      } else {
+      // All users have access
+      {
         setMessages([
           ...messages,
           { id: id1, role: 'user', content: prompt },
@@ -229,8 +209,7 @@ export default function AIChatPage() {
     // clear input immediately after sending
     setInput('')
     setAttachments([])
-    // deduct happens before stream starts on server; small delay then refresh
-    setTimeout(() => refresh(), 300)
+    // No credit deduction needed
   }
   
 
@@ -304,21 +283,7 @@ export default function AIChatPage() {
     } catch {}
   }
 
-  // Show a helpful bubble when credits transition from >0 to 0 while chatting
-  const prevCreditsRef = React.useRef<number | null>(null)
-  React.useEffect(() => {
-    const current = credits?.creditsRemaining ?? null
-    const prev = prevCreditsRef.current
-    prevCreditsRef.current = current
-    if (prev != null && prev > 0 && current === 0) {
-      const hasTip = messages.some(m => m.id?.toString().startsWith('sys-nocred-'))
-      if (!hasTip) {
-        const id = `sys-nocred-${Date.now()}`
-        setMessages([...messages, { id, role: 'assistant', content: 'Você não tem mais créditos. [Ir para cobrança →](/billing)' }])
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [credits?.creditsRemaining])
+  // Credit system removed - all users have full access
 
   return (
     <Card className="p-4">
@@ -327,13 +292,8 @@ export default function AIChatPage() {
           Modo: <span className="font-medium text-foreground">{mode === 'text' ? 'Texto' : 'Imagem'}</span> · Provedor: <span className="font-medium text-foreground">{PROVIDERS.find(p=>p.key===provider)?.name}</span> · Modelo: <span className="font-medium text-foreground">{model}</span>
         </div>
         <div className="flex items-center gap-2">
-          {credits && (
-            <div className="hidden sm:flex items-center gap-2 mr-2">
-              <span className="text-xs">Créditos: <span className="font-medium text-foreground">{credits.creditsRemaining}</span></span>
-            </div>
-          )}
-          <div className="hidden sm:block">
-            <CreditStatus showUpgradeButton={false} />
+          <div className="hidden sm:flex items-center gap-2 mr-2">
+            <span className="text-xs text-green-600 font-medium">Acesso Completo</span>
           </div>
           <Button variant="ghost" size="icon" aria-label="Limpar chat" onClick={() => setMessages([])}>
             <Trash2 className="h-4 w-4" />
@@ -481,11 +441,7 @@ export default function AIChatPage() {
                 className="min-w-[200px]"
               />
             </div>
-            {mode === 'image' ? (
-              <span className="text-xs text-muted-foreground mr-2">Custo: {getCost('image_generation')} créditos</span>
-            ) : (
-              <span className="text-xs text-muted-foreground mr-2">Custo: {getCost('ai_chat')} crédito</span>
-            )}
+            <span className="text-xs text-green-600 mr-2">✓ Acesso Liberado</span>
             {isLoading ? (
               <Button
                 type="button"
@@ -503,8 +459,7 @@ export default function AIChatPage() {
                 disabled={
                   attachments.some(a => a.status === 'uploading') ||
                   (mode === 'image' && attachments.filter(a => a.status === 'done' && a.url).length === 0) ||
-                  !input.trim() ||
-                  (mode === 'image' ? !canPerformOperation('image_generation') : !canPerformOperation('ai_chat'))
+                  !input.trim()
                 }
                 className="gap-2"
               >

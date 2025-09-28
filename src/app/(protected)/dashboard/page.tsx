@@ -1,7 +1,6 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { CreditStatus } from "@/components/credits/credit-status";
 import { PortfolioSummary } from "@/components/dashboard/portfolio-summary";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { RecentAnalysis } from "@/components/dashboard/recent-analysis";
@@ -26,7 +25,6 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold">Dashboard FiiAI</h1>
           <p className="text-muted-foreground">Análise inteligente de Fundos Imobiliários</p>
         </div>
-        <CreditStatus />
       </div>
 
       {/* Portfolio Overview */}

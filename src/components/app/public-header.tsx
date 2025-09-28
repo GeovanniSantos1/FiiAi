@@ -88,22 +88,6 @@ export function PublicHeader() {
                     <span>Entrar</span>
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  className={cn(isScrolled && 'lg:hidden')}>
-                  <Link href="/sign-up">
-                    <span>Criar conta</span>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  className={cn(isScrolled ? 'lg:inline-flex' : 'hidden')}>
-                  <Link href="/sign-up">
-                    <span>Começar agora</span>
-                  </Link>
-                </Button>
               </div>
             </div>
           </div>

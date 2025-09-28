@@ -28,17 +28,13 @@ export default function SignInPage() {
               }}
               routing="path"
               path="/sign-in"
-              signUpUrl="/sign-up"
             />
           </CardContent>
         </Card>
         
         <div className="text-center mt-6">
           <p className="text-sm text-muted-foreground">
-            Não tem uma conta?{" "}
-            <Link href="/sign-up" className="text-primary hover:underline">
-              Criar conta
-            </Link>
+            Acesso restrito. Entre em contato conosco para obter uma conta.
           </p>
         </div>
       </div>

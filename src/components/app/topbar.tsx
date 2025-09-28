@@ -7,8 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Menu } from "lucide-react";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
-import { CreditStatus } from "@/components/credits/credit-status";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import { navigationItems } from "@/components/app/sidebar";
@@ -68,7 +67,6 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
                     <SignedIn>
                       <div className="flex items-center gap-3">
                         <UserButton afterSignOutUrl="/" />
-                        <CreditStatus />
                       </div>
                     </SignedIn>
                     <SignedOut>
@@ -76,9 +74,6 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
                         <SignInButton mode="modal">
                           <Button variant="ghost" size="sm">Entrar</Button>
                         </SignInButton>
-                        <SignUpButton mode="modal">
-                          <Button size="sm">Inscrever-se</Button>
-                        </SignUpButton>
                       </div>
                     </SignedOut>
                   </div>
@@ -112,7 +107,6 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
         {/* Right side actions */}
         <div className="flex items-center gap-2">
           <SignedIn>
-            <CreditStatus />
             <NotificationBell />
             <Separator orientation="vertical" className="h-6" />
           </SignedIn>
@@ -129,11 +123,6 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
                 Entrar
               </Button>
             </SignInButton>
-            <SignUpButton mode="modal">
-              <Button size="sm">
-                Inscrever-se
-              </Button>
-            </SignUpButton>
           </SignedOut>
         </div>
       </div>

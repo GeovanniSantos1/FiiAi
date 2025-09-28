@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -23,9 +23,6 @@ export function SimpleTopbar() {
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">Entrar</Button>
             </SignInButton>
-            <SignUpButton mode="modal">
-              <Button size="sm">Inscrever-se</Button>
-            </SignUpButton>
           </SignedOut>
         </div>
       </div>
