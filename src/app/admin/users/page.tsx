@@ -33,9 +33,9 @@ import {
   UserPlus,
   Mail,
   Calendar,
-  CreditCard,
   Edit,
-  Trash2
+  Trash2,
+  Settings
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -121,20 +121,7 @@ export default function UsersPage() {
   };
 
   const promptAndUpdateCredits = async (userId: string, current?: number) => {
-    const prefix = 'Definir novo saldo de crédito'
-    const suffix = typeof current === 'number' ? ` (atual: ${current})` : ''
-    const message = `${prefix}${suffix}:`
-    const input = window.prompt(
-      message,
-      typeof current === 'number' ? String(current) : ''
-    )
-    if (input == null) return
-    const value = Number(input)
-    if (!Number.isFinite(value) || value < 0) {
-      alert('Por favor, insira um número não negativo válido')
-      return
-    }
-    updateCreditsMutation.mutate({ userId, credits: Math.floor(value) });
+    alert('Gerenciamento de créditos foi removido. Usuários são gerenciados manualmente através do painel admin do Clerk.');
   }
 
   const handleDeactivateUser = (userId: string) => {
@@ -351,16 +338,13 @@ export default function UsersPage() {
                 },
               },
               {
-                key: "credits",
-                header: "Créditos",
+                key: "access",
+                header: "Acesso",
                 render: (item: unknown) => {
                   const user = item as User;
                   return (
                     <div className="flex items-center space-x-2">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-foreground">
-                        {user.creditBalance?.creditsRemaining || 0}
-                      </span>
+                      <span className="text-green-600 font-medium">Manual</span>
                     </div>
                   );
                 },
@@ -425,10 +409,10 @@ export default function UsersPage() {
                           Editar Usuário
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => promptAndUpdateCredits(user.id, user.creditBalance?.creditsRemaining)}
+                          onClick={() => promptAndUpdateCredits(user.id)}
                         >
-                          <CreditCard className="h-4 w-4 mr-2" />
-                          Ajustar Créditos
+                          <Settings className="h-4 w-4 mr-2" />
+                          Gerenciar Acesso
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-gray-300 hover:text-white" onClick={() => { if (user.email) window.location.href = `mailto:${user.email}` }}>
                           <Mail className="h-4 w-4 mr-2" />
