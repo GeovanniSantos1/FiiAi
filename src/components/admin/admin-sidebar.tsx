@@ -5,12 +5,10 @@ import type { ElementType } from "react";
 import { usePathname } from "next/navigation";
 import {
   Activity,
-  CreditCard,
   LayoutDashboard,
   Shield,
-  SlidersHorizontal,
   Users,
-  DollarSign,
+  FolderOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,16 +32,13 @@ const overview: Item[] = [
 ];
 const management: Item[] = [
   { title: "Usuários", href: "/admin/users", icon: Users },
-  { title: "Créditos", href: "/admin/credits", icon: CreditCard },
-  { title: "Armazenamento", href: "/admin/storage", icon: CreditCard },
+  { title: "Carteiras", href: "/admin/carteiras", icon: FolderOpen },
+  { title: "Armazenamento", href: "/admin/storage", icon: FolderOpen },
 ];
 const reports: Item[] = [
   { title: "Histórico de Uso", href: "/admin/usage", icon: Activity },
 ];
-const settings: Item[] = [
-  { title: "Custos por Funcionalidade", href: "/admin/settings/features", icon: SlidersHorizontal },
-  { title: "Planos de Assinatura", href: "/admin/settings/plans", icon: DollarSign },
-];
+// Seção de configurações removida - funcionalidades de créditos não serão usadas
 
 function NavList({ items, pathname }: { items: Item[]; pathname: string }) {
   return (
@@ -78,7 +73,7 @@ export function AdminSidebar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
             <Shield className="h-5 w-5" />
           </div>
-          <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">Painel Admin</span>
+          <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">FiiAI Admin</span>
         </div>
       </SidebarHeader>
 
@@ -106,12 +101,7 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Configurações</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <NavList items={settings} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Seção de Configurações removida - funcionalidades de créditos não serão usadas */}
       </SidebarContent>
 
       <SidebarFooter>

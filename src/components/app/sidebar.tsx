@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
-  CreditCard,
   User,
   Settings,
   Bot,
@@ -34,12 +33,12 @@ export const navigationItems = [
   { name: "Painel", href: "/dashboard", icon: Home },
   { name: "Avaliador de Carteiras", href: "/dashboard/avaliar-carteira", icon: TrendingUp },
   { name: "Direcionador de Aportes", href: "/dashboard/direcionar-aportes", icon: Target },
-  { name: "Cobrança", href: "/billing", icon: CreditCard },
+  { name: "Carteiras Recomendadas", href: "/dashboard/carteiras-recomendadas", icon: Building2 },
   { name: "Perfil", href: "/profile", icon: User },
 ];
 
 export const adminNavigationItems = [
-  { name: "Carteiras Recomendadas", href: "/admin/carteira-recomendada", icon: Building2 },
+  // Carteiras Recomendadas removido - agora integrado com /admin/carteiras
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {

@@ -124,9 +124,9 @@ export function DataTable<T extends Record<string, unknown>>({
       <Table>
         <TableHeader>
           <TableRow className="border-border">
-            {columns.map((column) => (
+            {columns.map((column, colIndex) => (
               <TableHead
-                key={typeof column.key === 'string' ? column.key : String(column.key)}
+                key={`header-${typeof column.key === 'string' ? column.key : String(column.key)}-${colIndex}`}
                 className={`text-muted-foreground ${column.className || ""}`}
               >
                 {column.header}
@@ -146,10 +146,10 @@ export function DataTable<T extends Record<string, unknown>>({
             </TableRow>
           ) : (
             displayData.map((item, index) => (
-              <TableRow key={(item as { id?: string | number }).id || index} className="border-border">
-                {columns.map((column) => (
+              <TableRow key={`row-${(item as { id?: string | number }).id || index}`} className="border-border">
+                {columns.map((column, colIndex) => (
                   <TableCell
-                    key={typeof column.key === 'string' ? column.key : String(column.key)}
+                    key={`cell-${typeof column.key === 'string' ? column.key : String(column.key)}-${index}-${colIndex}`}
                     className={column.className}
                   >
                     {column.render

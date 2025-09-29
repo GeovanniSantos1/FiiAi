@@ -123,6 +123,12 @@ enum RecommendationType {
   STRONG_SELL
 }
 
+enum FundRecommendation {
+  BUY
+  SELL
+  HOLD
+}
+
 enum NotificationType {
   ANALYSIS_COMPLETE
   CREDIT_LOW
@@ -219,21 +225,43 @@ model SubscriptionEvent {
   @@index([userId, occurredAt])
 }
 
-// Admin-configured recommended portfolio for FIIs
+// Admin-configured recommended portfolios for FIIs
 model RecommendedPortfolio {
-  id           String     @id @default(cuid())
-  fiiCode      String     @unique  // HGLG11, BTLG11, etc.
-  fiiName      String                // Nome do FII
-  sector       FiiSector
-  percentage   Float                 // Percentual recomendado na carteira
-  reasoning    String?    @db.Text   // Justificativa da recomendação
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String   // Clerk user ID
 
+  funds RecommendedFund[]
+
+  @@map("recommended_portfolios")
   @@index([isActive])
-  @@index([sector])
-  @@index([percentage])
+  @@index([createdAt])
+}
+
+model RecommendedFund {
+  id              String                @id @default(cuid())
+  portfolioId     String
+  ticker          String
+  name            String
+  segment         String
+  currentPrice    Decimal               @db.Decimal(10,2)
+  averagePrice    Decimal               @db.Decimal(10,2)
+  ceilingPrice    Decimal               @db.Decimal(10,2)
+  allocation      Decimal               @db.Decimal(5,2) // 0-100%
+  recommendation  FundRecommendation
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  portfolio RecommendedPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("recommended_funds")
+  @@index([portfolioId])
+  @@index([ticker])
+  @@index([recommendation])
 }
 
 // User portfolios uploaded via Excel

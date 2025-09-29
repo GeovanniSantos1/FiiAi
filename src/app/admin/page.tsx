@@ -1,12 +1,15 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Users,
   TrendingUp,
-  Activity
+  Activity,
+  FolderOpen,
+  Plus
 } from "lucide-react";
-import { MrrBarChart, ArrBarChart, ChurnLineChart } from "@/components/charts/revenue-charts";
 import { useDashboard } from "@/hooks/use-dashboard";
 
 export default function AdminDashboard() {
@@ -43,7 +46,7 @@ export default function AdminDashboard() {
         <div />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -77,72 +80,37 @@ export default function AdminDashboard() {
             <span className="text-muted-foreground ml-2">da última semana</span>
           </div>
         </Card>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">MRR</h2>
-              <p className="text-sm text-muted-foreground">Receita Recorrente Mensal</p>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FolderOpen className="h-5 w-5 text-blue-500" />
+              Carteiras Recomendadas
+            </CardTitle>
+            <CardDescription>
+              Gerencie carteiras de FIIs para recomendação aos usuários
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button asChild className="w-full">
+                <Link href="/admin/carteiras">
+                  Gerenciar Carteiras
+                </Link>
+              </Button>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/admin/carteiras/nova">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Carteira
+                </Link>
+              </Button>
             </div>
-            {stats?.mrrSeries && <DeltaBadge series={stats.mrrSeries} goodWhenPositive />}
-          </div>
-          {stats?.mrrSeries && <MrrBarChart data={stats.mrrSeries} />}
-        </Card>
-
-        <Card className="p-6">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">ARR</h2>
-              <p className="text-sm text-muted-foreground">Receita Recorrente Anual</p>
-            </div>
-            {stats?.arrSeries && <DeltaBadge series={stats.arrSeries} goodWhenPositive />}
-          </div>
-          {stats?.arrSeries && <ArrBarChart data={stats.arrSeries} />}
-        </Card>
-
-        <Card className="p-6">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">Churn</h2>
-              <p className="text-sm text-muted-foreground">Taxa de cancelamento de clientes</p>
-            </div>
-            {stats?.churnSeries && <DeltaBadge series={stats.churnSeries} goodWhenPositive={false} suffix="%" />}
-          </div>
-          {stats?.churnSeries && <ChurnLineChart data={stats.churnSeries} />}
+          </CardContent>
         </Card>
       </div>
+
     </div>
   );
-}
-
-function DeltaBadge({ series, goodWhenPositive = true, suffix = "" }: { series: { label: string; value: number }[]; goodWhenPositive?: boolean; suffix?: string }) {
-  if (!series || series.length < 2) return null
-  const last = series[series.length - 1].value
-  const prev = series[series.length - 2].value
-  const deltaRaw = last - prev
-  const deltaPct = prev === 0 ? (last > 0 ? 100 : 0) : (deltaRaw / prev) * 100
-  const isGood = goodWhenPositive ? deltaPct > 0 : deltaPct < 0
-  const isBad = goodWhenPositive ? deltaPct < 0 : deltaPct > 0
-  const color = isGood ? "emerald" : isBad ? "red" : "zinc"
-  const sign = deltaPct > 0 ? "+" : ""
-
-  return (
-    <span
-      className={
-        `inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ` +
-        (color === 'emerald'
-          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600'
-          : color === 'red'
-          ? 'border-red-500/20 bg-red-500/10 text-red-600'
-          : 'border-muted bg-muted/50 text-foreground/60')
-      }
-      title="Variação mês a mês"
-    >
-      {`${sign}${deltaPct.toFixed(1)}${suffix} MoM`}
-    </span>
-  )
 }
 
 // Removed seed/backfill demo buttons to simplify admin surface

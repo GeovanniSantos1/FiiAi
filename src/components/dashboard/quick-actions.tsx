@@ -11,7 +11,6 @@ interface QuickAction {
   description: string;
   href: string;
   icon: React.ReactNode;
-  credits: number;
   highlight?: boolean;
   badge?: string;
 }
@@ -22,7 +21,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Análise completa da sua carteira atual com IA",
     href: "/dashboard/avaliar-carteira",
     icon: <TrendingUp className="h-5 w-5" />,
-    credits: 15,
     highlight: true,
     badge: "Popular"
   },
@@ -31,15 +29,13 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Recomendações para seus próximos investimentos",
     href: "/dashboard/direcionar-aportes",
     icon: <Target className="h-5 w-5" />,
-    credits: 8,
     badge: "Novo"
   },
   {
     title: "Carregar Nova Carteira",
     description: "Faça upload de uma planilha atualizada",
     href: "/dashboard/avaliar-carteira#upload",
-    icon: <Upload className="h-5 w-5" />,
-    credits: 0
+    icon: <Upload className="h-5 w-5" />
   }
 ];
 
@@ -81,24 +77,15 @@ export function QuickActions() {
                     <p className="text-sm text-muted-foreground mb-3">
                       {action.description}
                     </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {action.credits > 0 ? `${action.credits} créditos` : 'Gratuito'}
-                      </span>
+                    <div className="flex items-center justify-end">
                       <Button 
                         size="sm" 
                         variant={action.highlight ? "default" : "outline"}
                         asChild
                       >
                         <Link href={action.href}>
-                          {action.credits > 0 ? (
-                            <>
-                              <Brain className="h-3 w-3 mr-1" />
-                              Usar IA
-                            </>
-                          ) : (
-                            'Acessar'
-                          )}
+                          <Brain className="h-3 w-3 mr-1" />
+                          Usar IA
                         </Link>
                       </Button>
                     </div>

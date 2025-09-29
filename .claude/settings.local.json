@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(set DATABASE_URL=postgresql://neondb_owner:npg_kTC6zFnW4YSe@ep-bold-bird-adwceevh.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx next:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
