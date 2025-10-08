@@ -55,11 +55,11 @@ export default function AdminDashboard() {
                 {stats?.totalUsers || 0}
               </p>
             </div>
-            <Users className="h-8 w-8 text-blue-500" />
+            <Users className="h-8 w-8 text-primary" />
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-            <span className="text-green-500">+12%</span>
+            <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+            <span className="text-success-500">+12%</span>
             <span className="text-muted-foreground ml-2">do último mês</span>
           </div>
         </Card>
@@ -72,11 +72,11 @@ export default function AdminDashboard() {
                 {stats?.activeUsers || 0}
               </p>
             </div>
-            <Activity className="h-8 w-8 text-green-500" />
+            <Activity className="h-8 w-8 text-success-500" />
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-            <span className="text-green-500">+8%</span>
+            <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+            <span className="text-success-500">+8%</span>
             <span className="text-muted-foreground ml-2">da última semana</span>
           </div>
         </Card>
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5 text-blue-500" />
+              <FolderOpen className="h-5 w-5 text-primary" />
               Carteiras Recomendadas
             </CardTitle>
             <CardDescription>

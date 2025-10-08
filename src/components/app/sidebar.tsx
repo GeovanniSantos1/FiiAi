@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Home,
   User,
-  Settings,
   Bot,
   TrendingUp,
   Target,
@@ -23,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Logo } from "@/components/brand/logo";
 
 type SidebarProps = {
   collapsed: boolean;
@@ -59,12 +59,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       aria-label="Barra lateral principal"
     >
       <div className="flex h-14 items-center gap-2 px-3">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Settings className="h-5 w-5" />
-          </div>
-          {!collapsed && (
-            <span className="text-lg font-semibold">FiiAI</span>
+        <Link href="/dashboard" className="flex items-center gap-2">
+          {collapsed ? (
+            <Logo variant="icon" size="md" priority />
+          ) : (
+            <Logo variant="full" size="lg" priority />
           )}
         </Link>
         <div className="ml-auto">

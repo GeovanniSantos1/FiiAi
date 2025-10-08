@@ -1,0 +1,328 @@
+{
+  "fundCountByCapital": {
+    "ranges": [
+      {
+        "minCapital": 0,
+        "maxCapital": 30000,
+        "minFunds": 10,
+        "maxFunds": 12,
+        "recommended": 11
+      },
+      {
+        "minCapital": 30000,
+        "maxCapital": 70000,
+        "minFunds": 12,
+        "maxFunds": 15,
+        "recommended": 13
+      },
+      {
+        "minCapital": 70000,
+        "maxCapital": null,
+        "minFunds": 15,
+        "maxFunds": 20,
+        "recommended": 17
+      }
+    ]
+  },
+  "mandatorySegments": {
+    "segments": [
+      "LAJES_CORPORATIVAS",
+      "GALPOES_LOGISTICOS",
+      "SHOPPINGS",
+      "VAREJO_RENDA_URBANA",
+      "PAPEL"
+    ],
+    "alertOnMissing": true
+  },
+  "fundsPerSegment": {
+    "byCapitalRange": [
+      {
+        "minCapital": 0,
+        "maxCapital": 30000,
+        "segmentRules": {
+          "LAJES_CORPORATIVAS": {
+            "min": 1,
+            "max": 1,
+            "recommended": 1
+          },
+          "GALPOES_LOGISTICOS": {
+            "min": 1,
+            "max": 2,
+            "recommended": 1
+          },
+          "SHOPPINGS": {
+            "min": 1,
+            "max": 2,
+            "recommended": 2
+          },
+          "VAREJO_RENDA_URBANA": {
+            "min": 1,
+            "max": 2,
+            "recommended": 1
+          },
+          "PAPEL": {
+            "min": 3,
+            "max": 4,
+            "recommended": 3
+          },
+          "FIAGROS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 1
+          },
+          "FI_INFRAS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 1
+          },
+          "HEDGE_FUNDS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 0
+          },
+          "HIBRIDOS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 0
+          }
+        }
+      },
+      {
+        "minCapital": 30000,
+        "maxCapital": 70000,
+        "segmentRules": {
+          "LAJES_CORPORATIVAS": {
+            "min": 1,
+            "max": 2,
+            "recommended": 1
+          },
+          "GALPOES_LOGISTICOS": {
+            "min": 1,
+            "max": 2,
+            "recommended": 2
+          },
+          "SHOPPINGS": {
+            "min": 2,
+            "max": 3,
+            "recommended": 2
+          },
+          "VAREJO_RENDA_URBANA": {
+            "min": 1,
+            "max": 2,
+            "recommended": 2
+          },
+          "PAPEL": {
+            "min": 3,
+            "max": 5,
+            "recommended": 4
+          },
+          "FIAGROS": {
+            "min": 0,
+            "max": 2,
+            "recommended": 1
+          },
+          "FI_INFRAS": {
+            "min": 0,
+            "max": 2,
+            "recommended": 1
+          },
+          "HEDGE_FUNDS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 1
+          },
+          "HIBRIDOS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 0
+          }
+        }
+      },
+      {
+        "minCapital": 70000,
+        "maxCapital": null,
+        "segmentRules": {
+          "LAJES_CORPORATIVAS": {
+            "min": 1,
+            "max": 2,
+            "recommended": 2
+          },
+          "GALPOES_LOGISTICOS": {
+            "min": 2,
+            "max": 3,
+            "recommended": 2
+          },
+          "SHOPPINGS": {
+            "min": 2,
+            "max": 3,
+            "recommended": 3
+          },
+          "VAREJO_RENDA_URBANA": {
+            "min": 2,
+            "max": 3,
+            "recommended": 2
+          },
+          "PAPEL": {
+            "min": 4,
+            "max": 6,
+            "recommended": 5
+          },
+          "FIAGROS": {
+            "min": 0,
+            "max": 2,
+            "recommended": 1
+          },
+          "FI_INFRAS": {
+            "min": 0,
+            "max": 2,
+            "recommended": 1
+          },
+          "HEDGE_FUNDS": {
+            "min": 0,
+            "max": 2,
+            "recommended": 1
+          },
+          "HIBRIDOS": {
+            "min": 0,
+            "max": 1,
+            "recommended": 0
+          }
+        }
+      }
+    ]
+  },
+  "allocationPercentage": {
+    "segments": {
+      "LAJES_CORPORATIVAS": {
+        "min": 5,
+        "max": 10,
+        "recommended": 7
+      },
+      "GALPOES_LOGISTICOS": {
+        "min": 10,
+        "max": 20,
+        "recommended": 15
+      },
+      "SHOPPINGS": {
+        "min": 10,
+        "max": 20,
+        "recommended": 15
+      },
+      "VAREJO_RENDA_URBANA": {
+        "min": 10,
+        "max": 15,
+        "recommended": 12
+      },
+      "PAPEL": {
+        "min": 25,
+        "max": 40,
+        "recommended": 31
+      },
+      "FIAGROS": {
+        "min": 0,
+        "max": 10,
+        "recommended": 8
+      },
+      "FI_INFRAS": {
+        "min": 0,
+        "max": 10,
+        "recommended": 5
+      },
+      "HEDGE_FUNDS": {
+        "min": 0,
+        "max": 10,
+        "recommended": 4
+      },
+      "HIBRIDOS": {
+        "min": 0,
+        "max": 5,
+        "recommended": 2
+      },
+      "DESENVOLVIMENTO": {
+        "min": 0,
+        "max": 5,
+        "recommended": 0
+      },
+      "FUNDOS_DE_FUNDOS": {
+        "min": 0,
+        "max": 5,
+        "recommended": 0
+      },
+      "EDUCACIONAL": {
+        "min": 0,
+        "max": 0,
+        "recommended": 0
+      },
+      "HOTEIS": {
+        "min": 0,
+        "max": 0,
+        "recommended": 0
+      },
+      "AGENCIAS": {
+        "min": 0,
+        "max": 0,
+        "recommended": 0
+      },
+      "RESIDENCIAL": {
+        "min": 0,
+        "max": 0,
+        "recommended": 0
+      },
+      "HOSPITAIS": {
+        "min": 0,
+        "max": 0,
+        "recommended": 0
+      },
+      "INDUSTRIAL": {
+        "min": 0,
+        "max": 0,
+        "recommended": 0
+      }
+    },
+    "alertOnOutOfRange": true
+  },
+  "tijoloPapelBalance": {
+    "tijolo": {
+      "segments": [
+        "LAJES_CORPORATIVAS",
+        "GALPOES_LOGISTICOS",
+        "SHOPPINGS",
+        "VAREJO_RENDA_URBANA"
+      ],
+      "minPercentage": 50,
+      "maxPercentage": 70,
+      "recommendedPercentage": 60
+    },
+    "papel": {
+      "segments": [
+        "PAPEL"
+      ],
+      "minPercentage": 25,
+      "maxPercentage": 35,
+      "recommendedPercentage": 30
+    },
+    "alertOnImbalance": true
+  },
+  "alternativeFunds": {
+    "categories": [
+      "FUNDOS_DE_FUNDOS",
+      "DESENVOLVIMENTO",
+      "FIAGROS",
+      "FI_INFRAS",
+      "HEDGE_FUNDS"
+    ],
+    "maxPercentage": 45,
+    "idealMaxPercentage": 40,
+    "alertThreshold": 42
+  },
+  "intraSegmentBalance": {
+    "enabled": true,
+    "maxDeviationPercentage": 10,
+    "alertOnImbalance": true
+  },
+  "general": {
+    "enforceStrictCompliance": false,
+    "allowOverrides": true,
+    "confidenceThreshold": 0.7
+  }
+}

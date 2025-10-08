@@ -1,9 +1,18 @@
 import OpenAI from "openai";
+import { db } from './db';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Using the javascript_openai blueprint integration
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Load the FiiAi prompt
+const FIIAI_PROMPT = readFileSync(
+  join(process.cwd(), 'docs', 'prompt-ia-avaliador-carteiras.md'),
+  'utf-8'
+);
 
 export interface FIIAnalysisResult {
   overallScore: number;
@@ -36,42 +45,30 @@ export interface PortfolioData {
 
 export async function analyzeFIIPortfolio(portfolioData: PortfolioData): Promise<FIIAnalysisResult> {
   try {
-    const prompt = `
-Você é um especialista em análise de Fundos de Investimento Imobiliário (FII) brasileiro. 
-Analise a carteira abaixo e forneça uma avaliação completa.
+    // Get active recommendation rules from database
+    const activeRules = await db.recommendationRuleSet.findFirst({
+      where: { isActive: true },
+      select: { rules: true }
+    });
 
-DADOS DA CARTEIRA:
+    if (!activeRules) {
+      throw new Error('No active recommendation rules found. Please configure rules in admin panel.');
+    }
+
+    const prompt = `
+${FIIAI_PROMPT}
+
+=== REGRAS ATIVAS DO SISTEMA ===
+${JSON.stringify(activeRules.rules, null, 2)}
+
+=== DADOS DO PORTFÓLIO DO USUÁRIO ===
 ${JSON.stringify(portfolioData, null, 2)}
 
-Analise considerando:
+Por favor, analise a carteira seguindo EXATAMENTE a metodologia descrita no prompt acima.
 
-1. DIVERSIFICAÇÃO:
-- Número de FIIs na carteira
-- Distribuição percentual entre os ativos
-- Concentração em poucos ativos
-
-2. TIPOS DE FII:
-- FIIs de tijolo (imóveis físicos)
-- FIIs de papel (CRI, LCI, etc.)
-- FIIs de fundos (FOF)
-- FIIs híbridos
-
-3. SETORES:
-- Logístico
-- Corporativo
-- Shopping Centers
-- Residencial
-- Hospitalar/Educacional
-- Outros
-
-4. ANÁLISE DE RISCO:
-- Concentração por ativo
-- Diversificação setorial
-- Qualidade dos gestores
-
-Responda APENAS em formato JSON com a seguinte estrutura:
+IMPORTANTE: Responda APENAS em formato JSON com a seguinte estrutura (mantenha compatibilidade com o sistema):
 {
-  "overallScore": [nota de 0 a 100],
+  "overallScore": [nota de 0 a 100 baseada nas regras],
   "riskLevel": "BAIXO" | "MODERADO" | "ALTO",
   "diversificationScore": [nota de 0 a 100],
   "concentrationRisk": [percentual do maior ativo],
@@ -80,23 +77,20 @@ Responda APENAS em formato JSON com a seguinte estrutura:
       "Logístico": [percentual],
       "Corporativo": [percentual],
       "Shopping": [percentual],
-      "Residencial": [percentual],
       "Papel": [percentual],
       "Outros": [percentual]
     },
-    "recommendations": ["recomendação 1", "recomendação 2"]
+    "recommendations": ["Use as 8 seções do relatório conforme metodologia FiiAi"]
   },
   "performanceAnalysis": {
     "totalValue": [valor total da carteira],
-    "strongPositions": ["FII1", "FII2"],
-    "weakPositions": ["FII3", "FII4"]
+    "strongPositions": ["FIIs recomendados que ele possui"],
+    "weakPositions": ["FIIs não recomendados ou em segmentos proibidos"]
   },
   "recommendations": [
-    "Recomendação específica 1",
-    "Recomendação específica 2", 
-    "Recomendação específica 3"
+    "Priorize recomendações conforme seção 6 do prompt (Recomendações Prioritárias)"
   ],
-  "summary": "Resumo executivo da análise em 2-3 frases"
+  "summary": "Use o formato da seção 1 (Resumo Executivo) - 3-5 linhas com visão geral"
 }
 `;
 
