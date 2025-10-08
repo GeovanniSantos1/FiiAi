@@ -21,22 +21,31 @@ export const site = {
   name: 'FiiAI - Análise Inteligente de Fundos Imobiliários',
   shortName: 'FiiAI',
   description:
-    'Plataforma de análise inteligente de carteiras de FIIs com agentes especializados para otimizar seus investimentos em fundos imobiliários.',
+    'Análise de portfólios de FIIs com Inteligência Artificial. Recomendações personalizadas e insights profissionais para seus investimentos imobiliários.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  author: 'FiiAI',
-  keywords: ['FII', 'Fundos Imobiliários', 'Investimentos', 'IA', 'Análise', 'Carteira', 'Recomendações', 'Real Estate', 'REIT'],
-  ogImage: '/og-image.png',
+  author: 'FiiAI Team',
+  keywords: [
+    'FII',
+    'Fundos Imobiliários',
+    'Análise de Portfólio',
+    'Inteligência Artificial',
+    'Investimentos',
+    'Real Estate',
+    'REIT Brasil',
+    'Análise Automatizada',
+  ],
+  ogImage: '/img/FIIS.IA.png',
   logo: {
-    light: '/logo-light.svg',
-    dark: '/logo-dark.svg',
+    light: '/img/FIIS.IA - BRANCO.png',
+    dark: '/img/FIIS.IA.png',
   } as LogoPaths,
   icons: {
-    favicon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-    shortcut: '/favicon-16x16.png',
+    favicon: '/img/FIIS.IA - SIMBOLO.png',
+    apple: '/img/FIIS.IA - SIMBOLO.png',
+    shortcut: '/img/FIIS.IA - SIMBOLO.png',
   } as IconPaths,
   socials: {
-    twitter: '@FiiAI_oficial',
+    twitter: '@fiiai',
   },
   support: {
     email: 'suporte@fiiai.com',
@@ -46,6 +55,27 @@ export const site = {
     gaMeasurementId: process.env.NEXT_PUBLIC_GA_ID,
     facebookPixelId: process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID,
   } as AnalyticsConfig,
+  colors: {
+    primary: {
+      light: '#6d3a05',   // Dourado escuro
+      dark: '#edd2a3',    // Dourado claro
+    },
+    secondary: {
+      light: '#edd2a3',   // Dourado claro
+      dark: '#6d3a05',    // Dourado escuro
+    },
+    background: {
+      light: '#ffffff',   // Branco
+      dark: '#212121',    // Preto
+    },
+  },
+  fonts: {
+    primary: 'Poppins',
+    weights: {
+      regular: 400,
+      bold: 700,
+    },
+  },
 } as const
 
 export const siteMetadata: Metadata = {

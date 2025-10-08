@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -10,9 +10,18 @@ import {
 import { siteMetadata } from "@/lib/brand-config";
 import { AnalyticsPixels } from "@/components/analytics/pixels";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppinsBold = Poppins({
+  weight: "700",
+  variable: "--font-poppins-bold",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const poppinsRegular = Poppins({
+  weight: "400",
+  variable: "--font-poppins-regular",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -31,7 +40,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="pt-br" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased  text-foreground`}
+          className={`${poppinsRegular.variable} ${poppinsBold.variable} ${geistMono.variable} antialiased text-foreground`}
           suppressHydrationWarning
         >
           <AnalyticsPixels />

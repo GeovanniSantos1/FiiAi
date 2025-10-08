@@ -9,6 +9,7 @@ import {
   Shield,
   Users,
   FolderOpen,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +25,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { Logo } from "@/components/brand/logo";
 
 type Item = { title: string; href: string; icon: ElementType };
 
@@ -38,7 +40,9 @@ const management: Item[] = [
 const reports: Item[] = [
   { title: "Histórico de Uso", href: "/admin/usage", icon: Activity },
 ];
-// Seção de configurações removida - funcionalidades de créditos não serão usadas
+const configuration: Item[] = [
+  { title: "Regras de Recomendação", href: "/admin/regras-recomendacao", icon: Settings },
+];
 
 function NavList({ items, pathname }: { items: Item[]; pathname: string }) {
   return (
@@ -69,12 +73,10 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <Shield className="h-5 w-5" />
-          </div>
-          <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">FiiAI Admin</span>
-        </div>
+        <Link href="/admin" className="flex items-center gap-2">
+          <Logo variant="icon" size="md" className="group-data-[collapsible=icon]:block hidden" priority />
+          <Logo variant="full" size="md" className="group-data-[collapsible=icon]:hidden block" priority />
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
@@ -101,7 +103,14 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Seção de Configurações removida - funcionalidades de créditos não serão usadas */}
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Configurações</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavList items={configuration} pathname={pathname} />
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>

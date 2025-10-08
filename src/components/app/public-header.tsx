@@ -2,10 +2,11 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { site } from '@/lib/brand-config'
+import { useAdmin } from '@/hooks/use-admin'
 
 const menuItems = [
   { name: 'Recursos', href: '#recursos' },
@@ -17,6 +18,7 @@ const menuItems = [
 export function PublicHeader() {
   const [menuState, setMenuState] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
+  const { isAdmin } = useAdmin()
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -79,6 +81,18 @@ export function PublicHeader() {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                {isAdmin && (
+                  <Button
+                    asChild
+                    variant="default"
+                    size="sm"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Link href="/admin">
+                      <Shield className="h-4 w-4 mr-2" />
+                      <span>Admin</span>
+                    </Link>
+                  </Button>
+                )}
                 <Button
                   asChild
                   variant="outline"

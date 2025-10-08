@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Menu } from "lucide-react";
+import { Menu, Shield } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetFooter } from "@/components/ui/sheet";
 import { navigationItems } from "@/components/app/sidebar";
+import { Logo } from "@/components/brand/logo";
+import { useAdmin } from "@/hooks/use-admin";
 
 type TopbarProps = {
   onToggleSidebar: () => void;
@@ -18,6 +20,8 @@ type TopbarProps = {
 };
 
 export function Topbar({ onToggleSidebar }: TopbarProps) {
+  const { isAdmin } = useAdmin();
+
   return (
     <header
       className={cn(
@@ -42,7 +46,7 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
             <SheetContent side="left" className="w-72 p-0 md:hidden">
               <SheetHeader className="p-4 text-left">
                 <div className="flex items-center justify-between">
-                  <SheetTitle>SaaS Template</SheetTitle>
+                  <Logo variant="full" size="md" />
                 </div>
               </SheetHeader>
               <nav className="flex flex-col gap-1 p-2">
@@ -85,9 +89,8 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
         </div>
 
         {/* Brand (mobile) */}
-        <Link href="/" className="flex items-center gap-2 md:hidden">
-          <div className="h-6 w-6 rounded bg-primary" />
-          <span className="text-sm font-semibold">SaaS Template</span>
+        <Link href="/dashboard" className="flex items-center md:hidden">
+          <Logo variant="full" size="sm" priority />
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
@@ -110,13 +113,29 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
             <NotificationBell />
             <Separator orientation="vertical" className="h-6" />
           </SignedIn>
-          
+
+          {isAdmin && (
+            <>
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Link href="/admin">
+                  <Shield className="h-4 w-4 mr-2" />
+                  <span>Admin</span>
+                </Link>
+              </Button>
+              <Separator orientation="vertical" className="h-6" />
+            </>
+          )}
+
           <ThemeToggle />
-          
+
           <SignedIn>
             <UserButton />
           </SignedIn>
-          
+
           <SignedOut>
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">
