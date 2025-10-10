@@ -89,6 +89,8 @@ export function usePortfolioAnalysis(portfolioId?: string) {
     
     // Error states
     analysisError: analysisQuery.error?.message,
+    analysisNotFound: analysisQuery.error?.message?.includes('No analysis found'),
+    mutationError: analyzePortfolioMutation.error?.message,
     
     // Actions
     analyzePortfolio: (portfolioId: string) => analyzePortfolioMutation.mutate(portfolioId),

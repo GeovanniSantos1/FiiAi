@@ -10,6 +10,7 @@ import {
   Users,
   FolderOpen,
   Settings,
+  DollarSign,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +36,7 @@ const overview: Item[] = [
 const management: Item[] = [
   { title: "Usuários", href: "/admin/users", icon: Users },
   { title: "Carteiras", href: "/admin/carteiras", icon: FolderOpen },
+  { title: "Preços Teto", href: "/admin/precos-teto", icon: DollarSign },
   { title: "Armazenamento", href: "/admin/storage", icon: FolderOpen },
 ];
 const reports: Item[] = [
@@ -42,6 +44,7 @@ const reports: Item[] = [
 ];
 const configuration: Item[] = [
   { title: "Regras de Recomendação", href: "/admin/regras-recomendacao", icon: Settings },
+  { title: "Regras de Direcionamento", href: "/admin/regras-direcionamento-aportes", icon: Settings },
 ];
 
 function NavList({ items, pathname }: { items: Item[]; pathname: string }) {
@@ -116,9 +119,10 @@ export function AdminSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Voltar ao App">
-              <Link href="/dashboard">
-                <span>Voltar ao App</span>
+            <SidebarMenuButton asChild tooltip="Voltar ao Dashboard" className="bg-gradient-to-r from-emerald-600/10 via-teal-600/10 to-cyan-600/10 hover:from-emerald-600/20 hover:via-teal-600/20 hover:to-cyan-600/20 border border-emerald-600/20 text-emerald-600 hover:text-white transition-all duration-200">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="group-data-[collapsible=icon]:hidden">Voltar ao Dashboard</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

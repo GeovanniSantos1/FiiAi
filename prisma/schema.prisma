@@ -33,6 +33,7 @@ model User {
   // Recommendation rules relations
   createdRuleSets         RecommendationRuleSet[]        @relation("RuleSetCreator")
   createdRuleVersions     RecommendationRuleVersion[]    @relation("RuleVersionCreator")
+  aporteRecomendacoes     AporteRecomendacao[]
 
   @@index([email])
   @@index([name])
@@ -99,6 +100,7 @@ enum OperationType {
   AI_IMAGE_GENERATION
   FII_PORTFOLIO_ANALYSIS
   FII_INVESTMENT_RECOMMENDATION
+  APORTE_RECOMENDACAO
 }
 
 enum AnalysisType {
@@ -279,6 +281,7 @@ model UserPortfolio {
   
   user             User       @relation(fields: [userId], references: [id])
   analysisReports  AnalysisReport[]
+  aporteRecomendacoes AporteRecomendacao[]
 
   @@index([userId])
   @@index([uploadedAt])
@@ -416,4 +419,71 @@ model RecommendationRuleVersion {
   @@index([ruleSetId])
   @@index([createdAt])
   @@map("recommendation_rule_versions")
+}
+
+// ============================================================================
+// DIRECIONADOR DE APORTES - Sistema Inteligente de Recomendações
+// ============================================================================
+
+// Regras configuráveis para o algoritmo de direcionamento de aportes
+model RegrasAporte {
+  id                          String   @id @default(cuid())
+
+  // Identificação
+  nome                        String   @db.VarChar(255)
+  descricao                   String?  @db.Text
+  ativo                       Boolean  @default(true)
+
+  // Regras de desconto
+  descontoMinimoAceitavel     Float    @default(0.0)  // % (ex: 0 = qualquer desconto)
+  permitirSemDesconto         Boolean  @default(true)
+
+  // Regras de balanceamento
+  toleranciaDesbalanceamento  Float    @default(2.0)  // % (ex: 2 = tolera ±2%)
+  pesoDesbalanceamento        Int      @default(60)   // 0-100
+  pesoDesconto                Int      @default(40)   // 0-100
+
+  // Regras de recomendação
+  limiteMaximoFundos          Int      @default(5)
+  alocacaoSequencial          Boolean  @default(true)
+
+  // Metadados
+  criadoPor                   String
+  criadoEm                    DateTime @default(now())
+  atualizadoEm                DateTime @updatedAt
+
+  @@map("regras_aporte")
+  @@index([ativo])
+  @@index([criadoPor])
+}
+
+// Histórico de recomendações de aportes geradas
+model AporteRecomendacao {
+  id                String      @id @default(cuid())
+  userId            String
+  userPortfolioId   String
+  valorDisponivel   Float
+  recomendacao      Json        // Estrutura completa de RecomendacaoAporte
+  regrasUtilizadas  Json        // Snapshot das regras no momento da análise
+  criadoEm          DateTime    @default(now())
+
+  user              User        @relation(fields: [userId], references: [id])
+  portfolio         UserPortfolio @relation(fields: [userPortfolioId], references: [id])
+
+  @@index([userId, criadoEm])
+  @@index([userPortfolioId])
+  @@map("aporte_recomendacoes")
+}
+
+// Preços teto configurados para cada FII
+model FiiPrecoTeto {
+  id           String   @id @default(cuid())
+  fiiCode      String   @unique @db.VarChar(10)
+  valorTeto    Float    // Preço teto configurado
+  fonte        String?  // "usuario" | "sistema" | "api"
+  atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime @default(now())
+
+  @@map("fii_preco_teto")
+  @@index([fiiCode])
 }

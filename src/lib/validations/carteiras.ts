@@ -35,19 +35,7 @@ export const createFundSchema = z.object({
     .max(100, 'Alocação deve estar entre 0-100%')
     .transform(val => Number(val.toFixed(2))),
   recommendation: FundRecommendationEnum,
-}).refine(
-  data => data.currentPrice <= data.ceilingPrice,
-  {
-    message: 'Preço atual deve ser menor ou igual ao preço teto',
-    path: ['currentPrice']
-  }
-).refine(
-  data => data.averagePrice <= data.ceilingPrice,
-  {
-    message: 'Preço médio deve ser menor ou igual ao preço teto',
-    path: ['averagePrice']
-  }
-);
+});
 
 export const updateFundSchema = createFundSchema.partial();
 
@@ -119,10 +107,6 @@ export const validateTicker = (ticker: string): boolean => {
 
 export const validateAllocation = (allocation: number): boolean => {
   return allocation >= 0 && allocation <= 100;
-};
-
-export const validatePriceRelationship = (current: number, average: number, ceiling: number): boolean => {
-  return current <= ceiling && average <= ceiling;
 };
 
 export const calculateTotalAllocation = (funds: Array<{ allocation: number }>): number => {

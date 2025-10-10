@@ -4,10 +4,10 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getUserFromClerkId } from '@/lib/auth-utils';
 import { createFundSchema, calculateTotalAllocation } from '@/lib/validations/carteiras';
-import { validatePortfolioAllocation, validateUniqueTickerInPortfolio, validatePriceRelationships } from '@/lib/validations/business-rules';
+import { validatePortfolioAllocation, validateUniqueTickerInPortfolio } from '@/lib/validations/business-rules';
 
 interface RouteContext {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -22,9 +22,11 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const { id } = await params;
+
     // Verify portfolio exists
     const portfolio = await db.recommendedPortfolio.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!portfolio) {
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     }
 
     const funds = await db.recommendedFund.findMany({
-      where: { portfolioId: params.id },
+      where: { portfolioId: id },
       orderBy: { ticker: 'asc' }
     });
 
@@ -64,9 +66,11 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const { id } = await params;
+
     // Verify portfolio exists
     const portfolio = await db.recommendedPortfolio.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!portfolio) {
@@ -78,7 +82,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
     // Validate ticker uniqueness
     const tickerValidation = await validateUniqueTickerInPortfolio(
-      params.id,
+      id,
       validatedData.ticker
     );
 
@@ -91,7 +95,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
     // Validate allocation limits
     const allocationValidation = await validatePortfolioAllocation(
-      params.id,
+      id,
       validatedData.allocation
     );
 
@@ -102,24 +106,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    // Validate price relationships
-    const priceValidation = validatePriceRelationships(
-      validatedData.currentPrice,
-      validatedData.averagePrice,
-      validatedData.ceilingPrice
-    );
-
-    if (!priceValidation.isValid) {
-      return NextResponse.json(
-        { error: priceValidation.errors.join(', ') },
-        { status: 400 }
-      );
-    }
-
     const fund = await db.recommendedFund.create({
       data: {
         ...validatedData,
-        portfolioId: params.id,
+        portfolioId: id,
       }
     });
 
