@@ -64,6 +64,22 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
                     </SheetClose>
                   );
                 })}
+                
+                {isAdmin && (
+                  <div className="mt-2 pt-2 border-t border-border/40">
+                    <SheetClose asChild>
+                      <Link
+                        href="/admin"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 bg-gradient-to-r from-violet-600/10 via-purple-600/10 to-blue-600/10 hover:from-violet-600/20 hover:via-purple-600/20 hover:to-blue-600/20 border border-gradient-to-r from-violet-600/30 via-purple-600/30 to-blue-600/30"
+                      >
+                        <Shield className="h-4 w-4 text-violet-600" />
+                        <span className="font-medium bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                          Painel Admin
+                        </span>
+                      </Link>
+                    </SheetClose>
+                  </div>
+                )}
               </nav>
               <SheetFooter className="mt-auto p-4">
                 <div className="flex w-full items-center justify-between gap-3">
@@ -120,10 +136,11 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
                 asChild
                 variant="default"
                 size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href="/admin">
-                  <Shield className="h-4 w-4 mr-2" />
-                  <span>Admin</span>
+                className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 border-0">
+                <Link href="/admin" className="relative z-10">
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-purple-600/20 to-blue-600/20 opacity-0 hover:opacity-100 transition-opacity duration-200" />
+                  <Shield className="h-4 w-4 mr-2 drop-shadow-sm" />
+                  <span className="font-medium drop-shadow-sm">Admin</span>
                 </Link>
               </Button>
               <Separator orientation="vertical" className="h-6" />

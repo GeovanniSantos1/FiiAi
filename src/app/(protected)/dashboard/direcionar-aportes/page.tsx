@@ -1,78 +1,81 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSetPageMetadata } from "@/contexts/page-metadata";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useInvestmentRecommendations } from "@/hooks/use-investment-recommendations";
-import { Target, DollarSign, TrendingUp, PieChart, Calculator, Brain, AlertCircle } from "lucide-react";
+import { useRecomendacaoAporte } from "@/hooks/use-aporte";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api-client";
+import { TrendingUp, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { RecomendacaoTable } from "@/components/aporte/recomendacao-table";
+import { ResumoAlocacao } from "@/components/aporte/resumo-alocacao";
+
+interface Portfolio {
+  id: string;
+  originalFileName: string;
+  uploadedAt: string;
+}
 
 export default function DirecionarAportesPage() {
-  const [aporteValue, setAporteValue] = useState("");
-  const [preferences, setPreferences] = useState("");
-  const [riskTolerance, setRiskTolerance] = useState<'CONSERVADOR' | 'MODERADO' | 'ARROJADO'>('MODERADO');
-  const [investmentGoal, setInvestmentGoal] = useState<'RENDA' | 'CRESCIMENTO' | 'BALANCEADO'>('BALANCEADO');
-  const [analysis, setAnalysis] = useState<any>(null);
-  
-  const investmentMutation = useInvestmentRecommendations();
+  const [portfolioId, setPortfolioId] = useState<string>("");
+  const [valorDisponivel, setValorDisponivel] = useState<string>("");
+
+  const recomendacao = useRecomendacaoAporte();
+
+  // Buscar portfolios do usuário
+  const { data: portfolios, isLoading: loadingPortfolios, error: portfoliosError } = useQuery<Portfolio[]>({
+    queryKey: ['portfolios'],
+    queryFn: () => api.get('/api/portfolios'),
+    staleTime: 0, // Sempre buscar dados frescos
+    refetchOnMount: true, // Recarregar ao montar componente
+  });
+
+  // Debug
+  console.log('Portfolios:', portfolios);
+  console.log('Loading:', loadingPortfolios);
+  console.log('Error:', portfoliosError);
 
   useSetPageMetadata({
-    title: "Direcionador de Aportes FII",
-    description: "Receba recomendações inteligentes para seus próximos aportes",
+    title: "Direcionador de Aportes Inteligente",
+    description: "Recomendações baseadas em desbalanceamento e oportunidades de desconto",
     breadcrumbs: [
       { label: "Dashboard", href: "/dashboard" },
       { label: "Direcionador de Aportes" }
     ]
   });
 
-  const handleAnalyze = async () => {
-    if (!aporteValue) {
+  const handleAnalyze = () => {
+    if (!portfolioId) {
+      toast.error('Selecione uma carteira');
+      return;
+    }
+
+    if (!valorDisponivel) {
       toast.error('Digite o valor do aporte');
       return;
     }
-    
-    const investmentAmount = parseFloat(aporteValue.replace(/[^\d,]/g, '').replace(',', '.'));
-    
-    if (investmentAmount <= 0) {
-      toast.error('O valor do aporte deve ser maior que zero');
+
+    const valor = parseFloat(valorDisponivel.replace(/[^\d,]/g, '').replace(',', '.'));
+
+    if (valor < 50) {
+      toast.error('Valor mínimo: R$ 50,00');
       return;
     }
-    
-    try {
-      const result = await investmentMutation.mutateAsync({
-        investmentAmount,
-        preferences,
-        riskTolerance,
-        investmentGoal
-      });
-      
-      setAnalysis({
-        totalAporte: result.investmentAmount,
-        recommendations: result.recommendations.map(rec => ({
-          codigo: rec.fiiCode,
-          nome: rec.fiiCode, // We'll improve this with a FII name lookup
-          valor: rec.suggestedAmount,
-          percentual: (rec.suggestedAmount / result.investmentAmount) * 100,
-          setor: 'N/A', // Can be improved with sector mapping
-          justificativa: rec.reason,
-          priority: rec.priority
-        })),
-        reasoning: result.strategy,
-        expectedYield: result.expectedYield,
-        hasExistingPortfolio: result.hasExistingPortfolio
-      });
-      
-      toast.success('Recomendações geradas com sucesso!');
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao gerar recomendações');
+
+    if (valor > 1000000) {
+      toast.error('Valor máximo: R$ 1.000.000,00');
+      return;
     }
+
+    recomendacao.mutate({
+      portfolioId,
+      valorDisponivel: valor,
+    });
   };
 
   const formatCurrency = (value: number) => {
@@ -85,229 +88,188 @@ export default function DirecionarAportesPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <Card className="border-primary/20">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Target className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl">Direcionador de Aportes FII</CardTitle>
-              <CardDescription className="text-base">
-                Receba sugestões inteligentes de como distribuir seus novos aportes
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-background border">
-              <Calculator className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="font-medium">Cálculo Automático</p>
-                <p className="text-sm text-muted-foreground">Distribuição otimizada</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-background border">
-              <PieChart className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="font-medium">Diversificação</p>
-                <p className="text-sm text-muted-foreground">Por setores</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-background border">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
-              <div>
-                <p className="font-medium">Yields e Liquidez</p>
-                <p className="text-sm text-muted-foreground">Considerados</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-background border">
-              <Brain className="h-5 w-5 text-orange-600" />
-              <div>
-                <p className="font-medium">IA OpenAI</p>
-                <p className="text-sm text-muted-foreground">GPT-5</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <TrendingUp className="h-8 w-8 text-primary" />
+          Direcionador de Aportes Inteligente
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Descubra onde investir com base em desbalanceamento da carteira e oportunidades de desconto
+        </p>
+      </div>
 
-      {/* Input Form */}
+      {/* Formulário Simplificado */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-green-600" />
-            Configurar Aporte
-          </CardTitle>
+          <CardTitle>Informações do Aporte</CardTitle>
           <CardDescription>
-            Informe o valor que deseja aportar e suas preferências
+            Informe apenas o valor disponível e receba recomendações personalizadas
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="aporte-value">Valor do Aporte</Label>
-              <Input
-                id="aporte-value"
-                placeholder="R$ 1.000,00"
-                value={aporteValue}
-                onChange={(e) => setAporteValue(e.target.value)}
-              />
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Seleção de Portfolio */}
+            <div>
+              <Label htmlFor="portfolio">Carteira</Label>
+              {loadingPortfolios ? (
+                <div className="flex items-center gap-2 p-3 border rounded-md">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm text-muted-foreground">Carregando carteiras...</span>
+                </div>
+              ) : portfolios && portfolios.length > 0 ? (
+                <Select value={portfolioId} onValueChange={setPortfolioId}>
+                  <SelectTrigger id="portfolio">
+                    <SelectValue placeholder="Selecione uma carteira" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {portfolios.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.originalFileName || `Carteira ${new Date(p.uploadedAt).toLocaleDateString('pt-BR')}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/50">
+                  <AlertCircle className="h-4 w-4 text-warning-500" />
+                  <span className="text-sm text-muted-foreground">
+                    Você ainda não possui carteiras. <a href="/dashboard/avaliar-carteira" className="text-primary underline">Faça upload de uma carteira</a>
+                  </span>
+                </div>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="risk-tolerance">Tolerância ao Risco</Label>
-              <Select value={riskTolerance} onValueChange={(value: any) => setRiskTolerance(value)}>
-                <SelectTrigger id="risk-tolerance">
-                  <SelectValue placeholder="Selecione sua tolerância ao risco" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="CONSERVADOR">Conservador</SelectItem>
-                  <SelectItem value="MODERADO">Moderado</SelectItem>
-                  <SelectItem value="ARROJADO">Arrojado</SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* Valor do Aporte */}
+            <div>
+              <Label htmlFor="valor">Valor Disponível para Investir</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  R$
+                </span>
+                <Input
+                  id="valor"
+                  type="number"
+                  min={50}
+                  max={1000000}
+                  step={100}
+                  value={valorDisponivel}
+                  onChange={(e) => setValorDisponivel(e.target.value)}
+                  className="pl-10"
+                  placeholder="10.000,00"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Valor mínimo: R$ 50,00 | Máximo: R$ 1.000.000,00
+              </p>
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="investment-goal">Objetivo de Investimento</Label>
-            <Select value={investmentGoal} onValueChange={(value: any) => setInvestmentGoal(value)}>
-              <SelectTrigger id="investment-goal">
-                <SelectValue placeholder="Selecione seu objetivo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="RENDA">Foco em Renda</SelectItem>
-                <SelectItem value="CRESCIMENTO">Foco em Crescimento</SelectItem>
-                <SelectItem value="BALANCEADO">Balanceado</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="preferences">Preferências e Objetivos (Opcional)</Label>
-            <Textarea
-              id="preferences"
-              placeholder="Ex: Prefiro FIIs de tijolo, busco dividend yield acima de 10%, evitar shopping centers..."
-              value={preferences}
-              onChange={(e) => setPreferences(e.target.value)}
-              rows={4}
-            />
           </div>
 
-          <Button 
-            onClick={handleAnalyze} 
-            disabled={!aporteValue || investmentMutation.isPending}
-            className="w-full md:w-auto"
+          <Button
+            onClick={handleAnalyze}
+            disabled={!portfolioId || !valorDisponivel || recomendacao.isPending || loadingPortfolios}
+            className="mt-6 w-full md:w-auto"
           >
-            {investmentMutation.isPending ? (
+            {recomendacao.isPending ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Analisando com IA...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Analisando...
               </>
             ) : (
               <>
-                <Brain className="h-4 w-4 mr-2" />
+                <TrendingUp className="h-4 w-4 mr-2" />
                 Gerar Recomendações
               </>
             )}
           </Button>
-          
-          {investmentMutation.error && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-700 border border-red-200">
+
+          {recomendacao.error && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-error-500/10 text-error-500 border border-error-500/20 mt-4">
               <AlertCircle className="h-4 w-4" />
-              <p className="text-sm">{investmentMutation.error.message}</p>
+              <p className="text-sm">{recomendacao.error.message}</p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Analysis Results */}
-      {analysis && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              Recomendações de Distribuição
-            </CardTitle>
-            <CardDescription>
-              Sugestões personalizadas para seu aporte de {formatCurrency(analysis.totalAporte)}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Reasoning */}
-              <div className="p-4 rounded-lg bg-muted/50">
-                <p className="text-sm font-medium mb-2">Estratégia Recomendada:</p>
-                <p className="text-sm text-muted-foreground">{analysis.reasoning}</p>
-              </div>
+      {/* Resultados */}
+      {recomendacao.isSuccess && recomendacao.data && (
+        <>
+          {/* Resumo da Alocação */}
+          <ResumoAlocacao resumo={recomendacao.data.resumo} />
 
-              {/* Portfolio Status */}
-              {analysis.hasExistingPortfolio && (
-                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <PieChart className="h-4 w-4 text-blue-600" />
-                    <p className="text-sm font-medium text-blue-900">Carteira Atual Considerada</p>
-                  </div>
-                  <p className="text-sm text-blue-700">
-                    Analisamos sua carteira atual para sugerir aportes que otimizem sua diversificação.
+          {/* Fundos Prioritários */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-success-500" />
+                Fundos Recomendados para Compra
+              </CardTitle>
+              <CardDescription>
+                Fundos com melhor oportunidade de compra e rebalanceamento agora
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RecomendacaoTable fundos={recomendacao.data.fundosPrioritarios} />
+            </CardContent>
+          </Card>
+
+          {/* Fundos para Aguardar */}
+          {recomendacao.data.fundosAguardar && recomendacao.data.fundosAguardar.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-warning-500" />
+                  Fundos para Aguardar Melhor Momento
+                </CardTitle>
+                <CardDescription>
+                  Fundos desbalanceados mas sem desconto no momento - aguarde preços melhores
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RecomendacaoTable fundos={recomendacao.data.fundosAguardar} aguardar />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Fundos Acima do Ideal */}
+          {recomendacao.data.fundosAcimaIdeal && recomendacao.data.fundosAcimaIdeal.length > 0 && (
+            <Card className="border-blue-200 bg-blue-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                  Fundos Acima da Alocação Ideal
+                </CardTitle>
+                <CardDescription>
+                  Fundos que você já possui em quantidade suficiente ou acima do recomendado - não é necessário aumentar exposição
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RecomendacaoTable fundos={recomendacao.data.fundosAcimaIdeal} aguardar />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Informações sobre o Algoritmo */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <TrendingUp className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-primary mb-2">Como funciona o algoritmo?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    O sistema prioriza fundos combinando <strong>desbalanceamento da carteira</strong> (distância entre % atual e % ideal)
+                    com <strong>oportunidades de desconto</strong> (preço atual vs preço teto). Fundos com maior score recebem prioridade
+                    e o valor é distribuído sequencialmente até equilibrar a carteira.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <strong>Versão do Algoritmo:</strong> {recomendacao.data.metadata.versaoAlgoritmo} •
+                    <strong> Processado em:</strong> {new Date(recomendacao.data.metadata.timestamp).toLocaleString('pt-BR')}
                   </p>
                 </div>
-              )}
-              
-              {/* Expected Yield */}
-              {analysis.expectedYield && (
-                <div className="p-4 rounded-lg bg-green-50 border border-green-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-green-600" />
-                    <p className="text-sm font-medium text-green-900">Yield Esperado</p>
-                  </div>
-                  <p className="text-lg font-semibold text-green-700">{analysis.expectedYield.toFixed(2)}% ao ano</p>
-                </div>
-              )}
-
-              {/* Recommendations */}
-              <div className="space-y-4">
-                {analysis.recommendations.map((rec: any, index: number) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <h4 className="font-semibold">{rec.codigo}</h4>
-                          <p className="text-sm text-muted-foreground">{rec.nome}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          {rec.priority && (
-                            <Badge variant={rec.priority === 'ALTA' ? 'default' : rec.priority === 'MÉDIA' ? 'secondary' : 'outline'}>
-                              {rec.priority}
-                            </Badge>
-                          )}
-                          {rec.setor !== 'N/A' && <Badge variant="secondary">{rec.setor}</Badge>}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-lg">{rec.percentual.toFixed(1)}%</p>
-                        <p className="text-sm text-muted-foreground">{formatCurrency(rec.valor)}</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{rec.justificativa}</p>
-                  </div>
-                ))}
               </div>
-
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1">
-                  <PieChart className="h-4 w-4 mr-2" />
-                  Ver Gráfico de Distribuição
-                </Button>
-                <Button className="flex-1">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Simular Novo Aporte
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </>
       )}
     </div>
   );

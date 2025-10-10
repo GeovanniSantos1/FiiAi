@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +39,8 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
     isAnalyzing,
     isLoadingAnalysis,
     analysisError,
+    analysisNotFound,
+    mutationError,
     analyzePortfolio,
     hasAnalysis,
     canAnalyze,
@@ -49,7 +51,19 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
     analyzePortfolio(portfolioId);
   };
 
-  if (isLoadingAnalysis) {
+  // Auto-start analysis if no analysis exists and we can analyze
+  // Ignore 404 errors (analysis not found) as they're expected for new portfolios
+  useEffect(() => {
+    if (!isLoadingAnalysis && !hasAnalysis && canAnalyze && !isAnalyzing) {
+      // Only prevent auto-start if there's a real error (not "analysis not found")
+      if (!analysisError || analysisNotFound) {
+        analyzePortfolio(portfolioId);
+      }
+    }
+  }, [isLoadingAnalysis, hasAnalysis, analysisError, analysisNotFound, canAnalyze, isAnalyzing, portfolioId, analyzePortfolio]);
+
+  // Show loading state while checking for existing analysis or while analyzing
+  if (isLoadingAnalysis || isAnalyzing) {
     return (
       <Card>
         <CardHeader>
@@ -58,19 +72,25 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
             Análise Inteligente
           </CardTitle>
           <CardDescription>
-            Carregando análise da carteira...
+            {isAnalyzing ? 'Analisando sua carteira...' : 'Carregando análise da carteira...'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+            <p className="text-sm text-muted-foreground text-center">
+              {isAnalyzing 
+                ? 'Aguarde enquanto nossa IA analisa sua carteira de FIIs...' 
+                : 'Carregando dados...'}
+            </p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (analysisError && !hasAnalysis) {
+  // Show error state only if there's a real error (not "analysis not found") and we couldn't start analysis automatically
+  if (analysisError && !analysisNotFound && !hasAnalysis && !isAnalyzing) {
     return (
       <Card>
         <CardHeader>
@@ -79,15 +99,15 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
             Análise Inteligente
           </CardTitle>
           <CardDescription>
-            Análise avançada da sua carteira de FIIs
+            Erro ao processar análise da carteira
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Análise não encontrada</h3>
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Erro na Análise</h3>
             <p className="text-muted-foreground mb-4">
-              Nenhuma análise foi encontrada para esta carteira.
+              Ocorreu um erro ao analisar sua carteira. Tente novamente.
             </p>
             <Button 
               onClick={handleAnalyze}
@@ -102,7 +122,7 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
               ) : (
                 <>
                   <Brain className="h-4 w-4 mr-2" />
-                  Analisar Carteira
+                  Tentar Novamente
                 </>
               )}
             </Button>
@@ -112,7 +132,8 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
     );
   }
 
-  if (!analysis) {
+  // Show error state for mutation errors (actual analysis failures)
+  if (mutationError && !isAnalyzing) {
     return (
       <Card>
         <CardHeader>
@@ -121,15 +142,15 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
             Análise Inteligente
           </CardTitle>
           <CardDescription>
-            Use nossa IA para analisar sua carteira de FIIs
+            Erro ao analisar carteira
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <Brain className="h-12 w-12 text-primary/60 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Análise Inteligente</h3>
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Falha na Análise</h3>
             <p className="text-muted-foreground mb-4">
-              Nossa IA analisará diversificação, riscos, setores e dará recomendações personalizadas.
+              {mutationError || 'Ocorreu um erro ao analisar sua carteira. Tente novamente.'}
             </p>
             <Button 
               onClick={handleAnalyze}
@@ -144,10 +165,36 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
               ) : (
                 <>
                   <Brain className="h-4 w-4 mr-2" />
-                  Analisar Carteira
+                  Tentar Novamente
                 </>
               )}
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // If no analysis exists and we're not loading/analyzing, this shouldn't happen 
+  // due to the useEffect auto-start, but keep as fallback
+  if (!analysis && !isAnalyzing && !isLoadingAnalysis) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            Análise Inteligente
+          </CardTitle>
+          <CardDescription>
+            Iniciando análise da sua carteira...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+            <p className="text-sm text-muted-foreground text-center">
+              Preparando análise da carteira...
+            </p>
           </div>
         </CardContent>
       </Card>

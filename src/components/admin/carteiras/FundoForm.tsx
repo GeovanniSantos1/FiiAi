@@ -123,16 +123,6 @@ export function FundoForm({ portfolioId, fund, onSuccess }: FundoFormProps) {
 
   const isLoading = createFund.isPending || updateFund.isPending;
 
-  // Watch current and ceiling prices for validation feedback
-  const currentPrice = form.watch('currentPrice');
-  const ceilingPrice = form.watch('ceilingPrice');
-  const averagePrice = form.watch('averagePrice');
-
-  const priceValidation = {
-    currentVsCeiling: currentPrice > 0 && ceilingPrice > 0 && currentPrice > ceilingPrice,
-    averageVsCeiling: averagePrice > 0 && ceilingPrice > 0 && averagePrice > ceilingPrice,
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -233,11 +223,6 @@ export function FundoForm({ portfolioId, fund, onSuccess }: FundoFormProps) {
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
-                    {priceValidation.currentVsCeiling && (
-                      <p className="text-sm text-destructive">
-                        Preço atual não deve ser maior que o preço teto
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -258,11 +243,6 @@ export function FundoForm({ portfolioId, fund, onSuccess }: FundoFormProps) {
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
-                    {priceValidation.averageVsCeiling && (
-                      <p className="text-sm text-destructive">
-                        Preço médio não deve ser maior que o preço teto
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -358,7 +338,7 @@ export function FundoForm({ portfolioId, fund, onSuccess }: FundoFormProps) {
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading || priceValidation.currentVsCeiling || priceValidation.averageVsCeiling}
+                disabled={isLoading}
               >
                 {isLoading
                   ? isEditing

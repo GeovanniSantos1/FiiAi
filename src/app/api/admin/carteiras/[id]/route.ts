@@ -6,7 +6,7 @@ import { getUserFromClerkId } from '@/lib/auth-utils';
 import { updatePortfolioSchema } from '@/lib/validations/carteiras';
 
 interface RouteContext {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -21,8 +21,9 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const { id } = await params;
     const portfolio = await db.recommendedPortfolio.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         funds: {
           orderBy: { ticker: 'asc' }
@@ -68,8 +69,9 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const { id } = await params;
     const portfolio = await db.recommendedPortfolio.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!portfolio) {
@@ -84,7 +86,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
       const existingPortfolio = await db.recommendedPortfolio.findFirst({
         where: {
           name: validatedData.name,
-          id: { not: params.id }
+          id: { not: id }
         }
       });
 
@@ -97,7 +99,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     }
 
     const updatedPortfolio = await db.recommendedPortfolio.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         funds: {
@@ -143,8 +145,9 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const { id } = await params;
     const portfolio = await db.recommendedPortfolio.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!portfolio) {
@@ -153,7 +156,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
     // Delete portfolio (cascade will delete associated funds)
     await db.recommendedPortfolio.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: 'Portfolio deleted successfully' });
