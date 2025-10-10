@@ -33,7 +33,7 @@ export function AccessInfo() {
               className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
             >
               <a 
-                href="https://instagram.com/fiiai" 
+                href="https://www.instagram.com/tiofiis/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2"
@@ -61,7 +61,7 @@ export function AccessInfo() {
               className="w-full bg-green-600 hover:bg-green-700"
             >
               <a 
-                href="https://wa.me/5511999999999" 
+                href="https://wa.me/5571999921990" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2"

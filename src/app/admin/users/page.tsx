@@ -35,7 +35,8 @@ import {
   Calendar,
   Edit,
   Trash2,
-  Settings
+  Settings,
+  Upload
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -43,6 +44,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BulkUserImportDialog } from "@/components/admin/users/BulkUserImportDialog";
 import {
   useAdminUsers,
   useUpdateUserCredits,
@@ -65,6 +67,7 @@ export default function UsersPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [activeTab, setActiveTab] = useState("users");
   const [editOpen, setEditOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -250,13 +253,16 @@ export default function UsersPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
+
+        <div className="flex gap-3">
           <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90">
-                <UserPlus className="h-4 w-4 mr-2" />
-                Adicionar Usuário
-              </Button>
-            </DialogTrigger>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Adicionar Usuário
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="text-foreground">Convidar Usuário</DialogTitle>
@@ -304,7 +310,20 @@ export default function UsersPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          <Button
+            variant="secondary"
+            onClick={() => setShowBulkImport(true)}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Importar Planilha
+          </Button>
         </div>
+
+        <BulkUserImportDialog
+          open={showBulkImport}
+          onOpenChange={setShowBulkImport}
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
