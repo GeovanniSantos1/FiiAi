@@ -8,12 +8,13 @@ import { PortfolioAnalysisSection } from "./portfolio-analysis-section";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, TrendingUp, PieChart, Target, Brain } from "lucide-react";
+import { FileSpreadsheet, TrendingUp, PieChart, Target, Brain, ChevronDown, ChevronUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export function PortfolioUploadSection() {
   const { uploading, uploadResult, uploadPortfolio, clearResult } = usePortfolioUpload();
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showAllPositions, setShowAllPositions] = useState(false);
   const { analyzePortfolio, isAnalyzing } = usePortfolioAnalysis(uploadResult?.id);
 
   const handleUpload = async (file: File) => {
@@ -96,9 +97,32 @@ export function PortfolioUploadSection() {
 
             {uploadResult.positions.length > 0 && (
               <div>
-                <h4 className="font-medium mb-3">Posições Principais (Preview)</h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-medium">
+                    Posições da Carteira ({uploadResult.positionsCount})
+                  </h4>
+                  {uploadResult.positionsCount > 5 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAllPositions(!showAllPositions)}
+                    >
+                      {showAllPositions ? (
+                        <>
+                          <ChevronUp className="h-4 w-4 mr-1" />
+                          Mostrar menos
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="h-4 w-4 mr-1" />
+                          Mostrar todas ({uploadResult.positionsCount})
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <div className="space-y-2">
-                  {uploadResult.positions.map((position, index) => (
+                  {(showAllPositions ? uploadResult.positions : uploadResult.positions.slice(0, 5)).map((position, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <Badge variant="outline" className="font-mono">
@@ -122,12 +146,6 @@ export function PortfolioUploadSection() {
                     </div>
                   ))}
                 </div>
-                
-                {uploadResult.positionsCount > 5 && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    E mais {uploadResult.positionsCount - 5} posições...
-                  </p>
-                )}
               </div>
             )}
 

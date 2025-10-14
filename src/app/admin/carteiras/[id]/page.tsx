@@ -1,24 +1,26 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense, useState, use } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Edit, Plus, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, BarChart3, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FundosTable } from '@/components/admin/carteiras/FundosTable';
+import { BulkFundImportDialog } from '@/components/admin/carteiras/BulkFundImportDialog';
 import { useAdminPortfolio, usePortfolioStats } from '@/hooks/admin/use-admin-carteiras';
 import { formatDistance } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface CarteiraPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function PortfolioHeader({ portfolioId }: { portfolioId: string }) {
   const { data: portfolio, isLoading } = useAdminPortfolio(portfolioId);
   const stats = usePortfolioStats(portfolioId);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   if (isLoading) {
     return (
@@ -75,6 +77,10 @@ function PortfolioHeader({ portfolioId }: { portfolioId: string }) {
               Editar
             </Link>
           </Button>
+          <Button variant="secondary" onClick={() => setShowBulkImport(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Planilha
+          </Button>
           <Button asChild>
             <Link href={`/admin/carteiras/${portfolioId}/fundos/novo`}>
               <Plus className="h-4 w-4 mr-2" />
@@ -82,6 +88,14 @@ function PortfolioHeader({ portfolioId }: { portfolioId: string }) {
             </Link>
           </Button>
         </div>
+
+      {/* Bulk Import Dialog */}
+      <BulkFundImportDialog
+        portfolioId={portfolioId}
+        portfolioName={portfolio.name}
+        open={showBulkImport}
+        onOpenChange={setShowBulkImport}
+      />
       </div>
 
       {/* Statistics Cards */}
@@ -157,15 +171,17 @@ function PortfolioHeader({ portfolioId }: { portfolioId: string }) {
 }
 
 export default function CarteiraPage({ params }: CarteiraPageProps) {
+  const { id } = use(params);
+
   return (
     <div className="space-y-6">
       <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-        <PortfolioHeader portfolioId={params.id} />
+        <PortfolioHeader portfolioId={id} />
       </Suspense>
 
       <Suspense fallback={<Skeleton className="h-96 w-full" />}>
         <FundosTable
-          portfolioId={params.id}
+          portfolioId={id}
           portfolioName="" // This will be loaded by the component
         />
       </Suspense>

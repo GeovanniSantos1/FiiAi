@@ -22,18 +22,21 @@ export function ResumoAlocacao({ resumo }: ResumoAlocacaoProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {/* Total Investido */}
+      {/* Valor do Aporte Alocado */}
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Investido</p>
+              <p className="text-sm font-medium text-muted-foreground">Valor do Aporte Distribuído</p>
               <h3 className="text-2xl font-bold text-primary mt-2">
                 {formatCurrency(resumo.totalInvestido)}
               </h3>
             </div>
             <Coins className="h-10 w-10 text-primary opacity-50" />
           </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Valor do aporte que será investido nos fundos
+          </p>
         </CardContent>
       </Card>
 

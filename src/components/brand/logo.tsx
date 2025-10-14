@@ -36,17 +36,26 @@ export function Logo({
   priority = false,
 }: LogoProps) {
   const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  // Aguarda a montagem do componente no cliente para evitar hydration mismatch
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const logoSrc = React.useMemo(() => {
+    // Durante SSR ou antes da montagem, usa tema dark como padrão
+    const theme = mounted ? resolvedTheme : "dark";
+
     if (variant === "icon") {
-      return resolvedTheme === "dark"
+      return theme === "dark"
         ? "/img/FIIS.IA - SIMBOLO.png"
         : "/img/FIIS.IA - SIMBOLO - BRANCO.png";
     }
-    return resolvedTheme === "dark"
+    return theme === "dark"
       ? "/img/FIIS.IA sem fundo.png"
       : "/img/FIIS.IA - BRANCO.png";
-  }, [variant, resolvedTheme]);
+  }, [variant, resolvedTheme, mounted]);
 
   const dimensions = variant === "icon" ? iconSizeMap[size] : sizeMap[size];
 

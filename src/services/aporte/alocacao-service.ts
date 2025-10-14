@@ -28,34 +28,70 @@ export class AlocacaoService {
 
     // Valor total atual da carteira
     const totalCarteira = portfolioAtual.totalValue;
+    // Valor total da carteira APÓS o aporte completo
+    const totalCarteiraComAporte = totalCarteira + valorDisponivel;
 
-    for (const fundo of fundosComprar) {
-      if (valorRestante <= 0) break;
+    console.log('💰 DEBUG ALOCAÇÃO:');
+    console.log(`  - Total carteira atual: R$ ${totalCarteira.toFixed(2)}`);
+    console.log(`  - Valor disponível para aportar: R$ ${valorDisponivel.toFixed(2)}`);
+    console.log(`  - Total carteira com aporte: R$ ${totalCarteiraComAporte.toFixed(2)}`);
+    console.log(`  - Fundos para comprar: ${fundosComprar.length}`);
+    console.log(`  - Alocação sequencial: ${regras.alocacaoSequencial ? 'SIM (preenche um por vez)' : 'NÃO (distribui proporcionalmente)'}`);
 
-      // Calcular quanto precisa para equilibrar este fundo
+    // Calcular gaps de todos os fundos primeiro (para alocação proporcional)
+    const fundosComGap = fundosComprar.map(fundo => {
       const posicaoAtual = portfolioAtual.positions.find((p) => p.fiiCode === fundo.fiiCode);
       const valorAtual = posicaoAtual?.currentValue || 0;
       const percentualIdeal = fundo.percentualIdeal;
+      const valorIdeal = (percentualIdeal / 100) * totalCarteiraComAporte;
+      const gap = Math.max(0, valorIdeal - valorAtual);
+      return { fundo, valorAtual, valorIdeal, gap };
+    });
 
-      // Quanto precisa para chegar no ideal (em reais)
-      const valorIdeal = (percentualIdeal / 100) * (totalCarteira + valorDisponivel);
-      const gapValor = Math.max(0, valorIdeal - valorAtual);
+    const totalGaps = fundosComGap.reduce((sum, f) => sum + f.gap, 0);
+    console.log(`  - Total de gaps: R$ ${totalGaps.toFixed(2)}`);
 
-      // Se alocação sequencial, preenche gap completo antes de ir para próximo
-      let valorAlocar = regras.alocacaoSequencial
-        ? Math.min(gapValor, valorRestante)
-        : Math.min(gapValor / fundosComprar.length, valorRestante);
+    for (const { fundo, valorAtual, valorIdeal, gap } of fundosComGap) {
+      if (valorRestante <= 0) break;
+
+      console.log(`    📊 ${fundo.fiiCode}:`);
+      console.log(`      - Valor atual: R$ ${valorAtual.toFixed(2)}`);
+      console.log(`      - Percentual ideal: ${fundo.percentualIdeal.toFixed(2)}%`);
+      console.log(`      - Valor ideal: R$ ${valorIdeal.toFixed(2)}`);
+      console.log(`      - Gap: R$ ${gap.toFixed(2)}`);
+      console.log(`      - Valor restante: R$ ${valorRestante.toFixed(2)}`);
+
+      // Calcular valor a alocar baseado na estratégia
+      let valorAlocar: number;
+
+      if (regras.alocacaoSequencial) {
+        // Sequencial: preenche gap completo antes de ir para próximo
+        valorAlocar = Math.min(gap, valorRestante);
+      } else {
+        // Proporcional: distribui valor proporcionalmente aos gaps
+        const proporcaoGap = totalGaps > 0 ? gap / totalGaps : 0;
+        valorAlocar = Math.min(valorDisponivel * proporcaoGap, gap, valorRestante);
+      }
+
+      console.log(`      - Valor a alocar: R$ ${valorAlocar.toFixed(2)}`);
+      console.log(`      - Preço atual: R$ ${fundo.precoAtual.toFixed(2)}`);
 
       // Calcular cotas
       const cotasComprar = Math.floor(valorAlocar / fundo.precoAtual);
       valorAlocar = cotasComprar * fundo.precoAtual; // Valor exato das cotas
 
-      if (cotasComprar === 0) continue; // Não dá nem para 1 cota
+      console.log(`      - Cotas: ${cotasComprar}`);
+      console.log(`      - Valor final alocado: R$ ${valorAlocar.toFixed(2)}`);
+
+      if (cotasComprar === 0) {
+        console.log(`      ⚠️ Não dá para comprar nem 1 cota - PULANDO`);
+        continue; // Não dá nem para 1 cota
+      }
 
       // Calcular percentual pós-aporte
+      // Importante: usar o total da carteira COM APORTE COMPLETO (não apenas este aporte parcial)
       const novoValor = valorAtual + valorAlocar;
-      const novoTotalCarteira = totalCarteira + valorAlocar;
-      const percentualPosAporte = (novoValor / novoTotalCarteira) * 100;
+      const percentualPosAporte = (novoValor / totalCarteiraComAporte) * 100;
 
       alocacoes.push({
         ...fundo,

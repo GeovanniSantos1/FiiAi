@@ -7,8 +7,11 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import {
   ClerkProvider,
 } from "@clerk/nextjs";
+import { ptBR } from "@clerk/localizations";
 import { siteMetadata } from "@/lib/brand-config";
 import { AnalyticsPixels } from "@/components/analytics/pixels";
+import { TopLoadingBar } from "@/components/navigation/TopLoadingBar";
+import { RouteTransition } from "@/components/navigation/RouteTransition";
 
 const poppinsBold = Poppins({
   weight: "700",
@@ -37,13 +40,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={ptBR}>
       <html lang="pt-br" suppressHydrationWarning>
         <body
           className={`${poppinsRegular.variable} ${poppinsBold.variable} ${geistMono.variable} antialiased text-foreground`}
           suppressHydrationWarning
         >
           <AnalyticsPixels />
+
+          {/* Indicadores de carregamento globais */}
+          <TopLoadingBar />
+          <RouteTransition />
+
           <QueryProvider>
             <ThemeProvider>
               {children}

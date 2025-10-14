@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Logo } from "@/components/brand/logo";
+import { LoadingLink } from "@/components/navigation/LoadingLink";
 
 type SidebarProps = {
   collapsed: boolean;
@@ -83,9 +84,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           {allNavigationItems.map((item) => {
             const isActive = pathname === item.href;
             const link = (
-              <Link
+              <LoadingLink
                 key={item.name}
                 href={item.href}
+                showInlineLoader={false}
+                prefetch={true}
                 aria-label={collapsed ? item.name : undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
@@ -97,7 +100,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               >
                 <item.icon className="h-4 w-4" />
                 {!collapsed && <span>{item.name}</span>}
-              </Link>
+              </LoadingLink>
             );
 
             if (!collapsed) return link;

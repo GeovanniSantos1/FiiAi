@@ -11,7 +11,6 @@ import { useAdmin } from '@/hooks/use-admin'
 const menuItems = [
   { name: 'Recursos', href: '#recursos' },
   { name: 'Agentes', href: '#agentes' },
-  { name: 'Dashboard', href: '/dashboard' },
 ]
 
 export function PublicHeader() {

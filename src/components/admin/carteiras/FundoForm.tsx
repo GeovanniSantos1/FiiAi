@@ -30,6 +30,7 @@ import {
   FundRecommendation,
 } from '@/lib/validations/carteiras';
 import { useToast } from '@/hooks/use-toast';
+import { getSectorOptions } from '@/types/fii-sectors';
 
 interface FundoFormProps {
   portfolioId: string;
@@ -43,17 +44,8 @@ const recommendationOptions: { value: FundRecommendation; label: string }[] = [
   { value: 'HOLD', label: 'Aguardar' },
 ];
 
-const segmentOptions = [
-  'Logístico',
-  'Shopping',
-  'Corporativo',
-  'Residencial',
-  'Tijolo',
-  'Papel',
-  'Fundos',
-  'Híbrido',
-  'Outros',
-];
+// Usar opções de segmento do tipo centralizado
+const segmentOptions = getSectorOptions();
 
 export function FundoForm({ portfolioId, fund, onSuccess }: FundoFormProps) {
   const router = useRouter();
@@ -173,10 +165,10 @@ export function FundoForm({ portfolioId, fund, onSuccess }: FundoFormProps) {
                           <SelectValue placeholder="Selecione o segmento" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        {segmentOptions.map((segment) => (
-                          <SelectItem key={segment} value={segment}>
-                            {segment}
+                      <SelectContent className="max-h-[300px]">
+                        {segmentOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value} title={option.description}>
+                            {option.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
