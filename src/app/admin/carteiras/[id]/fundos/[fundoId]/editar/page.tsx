@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { FundoForm } from '@/components/admin/carteiras/FundoForm';
 import { usePortfolioFund } from '@/hooks/admin/use-admin-carteiras';
 
 interface EditarFundoPageProps {
-  params: { id: string; fundoId: string };
+  params: Promise<{ id: string; fundoId: string }>;
 }
 
 function EditFundoContent({ portfolioId, fundoId }: { portfolioId: string; fundoId: string }) {
@@ -38,11 +38,13 @@ function EditFundoContent({ portfolioId, fundoId }: { portfolioId: string; fundo
 }
 
 export default function EditarFundoPage({ params }: EditarFundoPageProps) {
+  const { id, fundoId } = use(params);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/admin/carteiras/${params.id}`}>
+          <Link href={`/admin/carteiras/${id}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Link>
@@ -57,7 +59,7 @@ export default function EditarFundoPage({ params }: EditarFundoPageProps) {
 
       <div className="max-w-4xl">
         <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-          <EditFundoContent portfolioId={params.id} fundoId={params.fundoId} />
+          <EditFundoContent portfolioId={id} fundoId={fundoId} />
         </Suspense>
       </div>
     </div>

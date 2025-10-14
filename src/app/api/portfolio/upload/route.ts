@@ -334,7 +334,7 @@ export async function POST(request: NextRequest) {
         totalValue,
         positionsCount: positions.length,
         skippedRows,
-        positions: positionsWithPercentage.slice(0, 5), // Preview only
+        positions: positionsWithPercentage, // Return all positions
       },
       storage: {
         saved: !!blobUrl,

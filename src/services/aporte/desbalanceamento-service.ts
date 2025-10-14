@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import type { FundoDesbalanceamento, IdealAllocation } from '@/types/aporte';
+import { normalizeSector } from '@/types/fii-sectors';
 
 /**
  * Service para análise de desbalanceamento de carteiras FII
@@ -63,7 +64,7 @@ export class DesbalanceamentoService {
       return {
         fiiCode: position.fiiCode,
         fiiName: position.fiiName || position.name || position.fiiCode,
-        setor: position.sector || position.setor || idealTarget?.sector || 'OUTROS',
+        setor: normalizeSector(position.sector || position.setor || idealTarget?.sector || 'OUTROS'),
         percentualAtual,
         percentualIdeal,
         desbalanceamento, // Positivo = precisa aumentar, Negativo = precisa reduzir
@@ -100,7 +101,7 @@ export class DesbalanceamentoService {
       .map((ideal) => ({
         fiiCode: ideal.fiiCode,
         fiiName: ideal.fiiName,
-        setor: ideal.sector,
+        setor: normalizeSector(ideal.sector),
         percentualAtual: 0,
         percentualIdeal: ideal.percentage,
         desbalanceamento: ideal.percentage,
@@ -153,7 +154,7 @@ export class DesbalanceamentoService {
     const idealAllocation: IdealAllocation[] = portfolio.funds.map((fund) => ({
       fiiCode: fund.ticker,
       fiiName: fund.name,
-      sector: fund.segment,
+      sector: normalizeSector(fund.segment),
       percentage: Number(fund.allocation), // Convert Decimal to number
     }));
 

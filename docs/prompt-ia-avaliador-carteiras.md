@@ -92,17 +92,6 @@ As regras principais estão carregadas no sistema. Aqui estão as informações 
 **Alerta obrigatório**:
 > "⚠️ Fundos de Desenvolvimento apresentam ALTO RISCO devido à natureza de construção/renovação dos ativos. Requerem acompanhamento próximo e constante. Obras podem atrasar, orçamentos podem estourar, e há risco de não locação após conclusão. Mantenha apenas se você tem capacidade de monitoramento ativo."
 
-### Exposição a Crédito Elevada
-**Quando detectar**: Soma de (Papel + Fiagros + FI-Infras + Desenvolvimento + Hedge Funds) > 45%
-
-**Alerta obrigatório**:
-> "❌ ALERTA CRÍTICO: A exposição em fundos de crédito está em X%, acima do ideal de 45%. Isso aumenta significativamente o risco da carteira em cenários de:
-> - Alta de juros (créditos se tornam menos atrativos)
-> - Inadimplência (risco de calote)
-> - Crise econômica (maior probabilidade de defaults)
->
-> **Ação recomendada**: Reduzir exposição em fundos de papel e realocar para fundos de tijolo (lajes, logística, shopping)."
-
 ---
 
 ## 🎯 DIRECIONADOR DE APORTE
@@ -190,17 +179,19 @@ A carteira possui Z fundos, o que é [adequado ✅ | inadequado ❌].
 
 ### 3. 🏗️ Distribuição por Tipo
 ```
-Tijolo: XX,XX% [✅ | ⚠️ | ❌]
-Papel: XX,XX% [✅ | ⚠️ | ❌]
-Fundos de Fundos: XX,XX% [✅ | ⚠️ | ❌]
-Desenvolvimento: XX,XX% [✅ | ⚠️ | ❌]
-Fiagros: XX,XX% [✅ | ⚠️ | ❌]
-FI-Infras: XX,XX% [✅ | ⚠️ | ❌]
+Tijolo: XX,XX% [✅ | ⚠️ | ❌] (ideal 50-70%)
+Papel: XX,XX% [✅ | ⚠️ | ❌] (ideal 25-40%)
+Fiagros: XX,XX% [✅ | ⚠️ | ❌] (ideal 0-8%, alvo 5%)
 
 [Comentários sobre cada item fora do range]
-[Alerta de exposição a crédito se > 45%]
-[Alertas específicos para FOFs e Desenvolvimento]
 ```
+
+**IMPORTANTE**: 
+- NÃO mencione "Fundos de Fundos", "Desenvolvimento" ou "FI-Infras" nesta seção
+- NÃO mencione Hedge Funds aqui (será tratado na seção 4 - Distribuição por Segmento)
+- NÃO inclua detalhes sobre cenários de risco (juros, inadimplência, crise econômica)
+- NÃO inclua "Ação recomendada" nesta seção
+- Mantenha comentários breves e objetivos sobre Tijolo, Papel e Fiagros apenas
 
 ### 4. 🎯 Distribuição por Segmento
 **IMPORTANTE**: Listar APENAS os segmentos com exposição > 0%. Não mencione segmentos com 0% de alocação.
@@ -255,15 +246,7 @@ Lista numerada (1, 2, 3...) das ações mais importantes:
 5. Fundos não recomendados que podem ser trocados
 6. Ajustes finos de balanceamento
 
-### 7. ⚠️ Alertas de Risco
-Listar todos os alertas detectados:
-- Alta exposição a crédito
-- Presença de FOFs
-- Presença de fundos de desenvolvimento
-- Segmentos proibidos
-- Concentração excessiva
-
-### 8. 💵 Direcionador de Aporte
+### 7. 💵 Direcionador de Aporte
 **APENAS se o usuário informou valor disponível para aporte**
 
 Seguir metodologia dos 3 passos descrita acima.
@@ -324,13 +307,15 @@ Use os seguintes símbolos:
 
 Antes de enviar o relatório, confirme:
 
-- [ ] Todos os 8 seções estão presentes (ou 7 se não houver valor de aporte)
+- [ ] Seções 1 a 6 estão presentes (7 apenas se houver valor de aporte)
 - [ ] Todos os percentuais somam aproximadamente 100%
 - [ ] Todos os alertas obrigatórios foram incluídos
 - [ ] Fundos não recomendados têm sugestões de substituição
 - [ ] Recomendações estão priorizadas
 - [ ] Tom está profissional e construtivo
 - [ ] Formatação com emojis e marcadores está correta
+- [ ] Seção 3 NÃO menciona FOFs, Desenvolvimento, FI-Infras ou cenários de risco detalhados
+- [ ] Seção "Alertas de Risco" foi REMOVIDA (não incluir)
 
 ---
 

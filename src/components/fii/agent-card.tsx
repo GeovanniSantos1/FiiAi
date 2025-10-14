@@ -56,10 +56,6 @@ export function AgentCard({
           </div>
           <div>
             <h3 className="text-lg font-semibold">{title}</h3>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Sparkles className="h-3 w-3" />
-              <span>{creditsPerUse} créditos por uso</span>
-            </div>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FII_SECTORS } from '@/types/fii-sectors';
 
 export const FundRecommendationEnum = z.enum(['BUY', 'SELL', 'HOLD']);
 
@@ -17,7 +18,9 @@ export const createFundSchema = z.object({
     .transform(val => val.toUpperCase())
     .refine(val => /^[A-Z]{4}[0-9]{2}$/.test(val), 'Ticker deve seguir o padrão XXXX11 (ex: HGLG11)'),
   name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome deve ter no máximo 100 caracteres'),
-  segment: z.string().min(1, 'Segmento é obrigatório').max(50, 'Segmento deve ter no máximo 50 caracteres'),
+  segment: z.enum(FII_SECTORS, {
+    errorMap: () => ({ message: 'Segmento inválido. Selecione um segmento da lista.' })
+  }),
   currentPrice: z.number()
     .positive('Preço atual deve ser positivo')
     .max(10000, 'Preço atual deve ser menor que R$ 10.000')

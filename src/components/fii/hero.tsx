@@ -70,7 +70,7 @@ export function FiiHero() {
                 {/* Título Principal */}
                 <h1 className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
                   <span className="bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
-                    Otimize seus
+                    Otimize a sua carteira de
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-primary to-yellow-500 bg-clip-text text-transparent">
@@ -84,8 +84,7 @@ export function FiiHero() {
 
                 {/* Subtítulo */}
                 <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl leading-relaxed">
-                  Plataforma especializada com dois agentes de IA para análise de carteira e recomendações 
-                  de aportes em fundos imobiliários brasileiros.
+                  Plataforma exclusiva com agentes de IA especializados para avaliar carteiras, analisar FIIs e responder dúvidas sobre investimentos imobiliários.
                 </p>
 
                 {/* CTAs */}
@@ -116,7 +115,7 @@ export function FiiHero() {
                     <div className="text-sm text-muted-foreground">Precisão nas Recomendações</div>
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <div className="text-2xl font-bold text-primary">10s</div>
+                    <div className="text-2xl font-bold text-primary">Ultra rápida</div>
                     <div className="text-sm text-muted-foreground">Análise Completa</div>
                   </div>
                 </div>

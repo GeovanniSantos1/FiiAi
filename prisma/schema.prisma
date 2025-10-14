@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "./generated/client"
@@ -15,41 +9,39 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String?  @unique
-  name      String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  creditBalance      CreditBalance?
-  usageHistory       UsageHistory[]
-  storageObjects     StorageObject[]
-  subscriptionEvents SubscriptionEvent[]
-  // FII related relations
-  userPortfolios     UserPortfolio[]
-  analysisReports    AnalysisReport[]
-  notifications      Notification[]
-  // Recommendation rules relations
-  createdRuleSets         RecommendationRuleSet[]        @relation("RuleSetCreator")
-  createdRuleVersions     RecommendationRuleVersion[]    @relation("RuleVersionCreator")
-  aporteRecomendacoes     AporteRecomendacao[]
+  id                  String                      @id @default(cuid())
+  clerkId             String                      @unique
+  email               String?                     @unique
+  name                String?
+  isActive            Boolean                     @default(true)
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
+  analysisReports     AnalysisReport[]
+  creditBalance       CreditBalance?
+  notifications       Notification[]
+  storageObjects      StorageObject[]
+  subscriptionEvents  SubscriptionEvent[]
+  usageHistory        UsageHistory[]
+  userPortfolios      UserPortfolio[]
+  aporteRecomendacoes AporteRecomendacao[]
+  createdRuleSets     RecommendationRuleSet[]     @relation("RuleSetCreator")
+  createdRuleVersions RecommendationRuleVersion[] @relation("RuleVersionCreator")
 
   @@index([email])
   @@index([name])
   @@index([createdAt])
   @@index([isActive])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([isActive, createdAt(sort: Desc)])
+  @@index([email, isActive])
 }
 
-
-// Workspace features and linkage to projects
 model Feature {
-  id          String     @id @default(cuid())
+  id          String   @id @default(cuid())
   workspaceId String
   name        String
   description String?
   tags        String[]
-
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -57,42 +49,342 @@ model Feature {
 }
 
 model CreditBalance {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  clerkUserId       String   @unique
-  creditsRemaining  Int      @default(100)  // Cached from Clerk
-  lastSyncedAt      DateTime @default(now())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  user              User     @relation(fields: [userId], references: [id])
-  usageHistory      UsageHistory[]
+  id               String         @id @default(cuid())
+  userId           String         @unique
+  clerkUserId      String         @unique
+  creditsRemaining Int            @default(100)
+  lastSyncedAt     DateTime       @default(now())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  user             User           @relation(fields: [userId], references: [id])
+  usageHistory     UsageHistory[]
 
   @@index([userId])
   @@index([clerkUserId])
   @@index([creditsRemaining])
   @@index([lastSyncedAt])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([creditsRemaining(sort: Asc), lastSyncedAt])
 }
 
-// Track individual usage events
 model UsageHistory {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
   creditBalanceId String
   operationType   OperationType
   creditsUsed     Int
   details         Json?
-  timestamp       DateTime @default(now())
-
-  user            User     @relation(fields: [userId], references: [id])
+  timestamp       DateTime      @default(now())
   creditBalance   CreditBalance @relation(fields: [creditBalanceId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([creditBalanceId])
-  @@index([timestamp])
   @@index([operationType])
-  @@index([userId, timestamp])
-  @@index([operationType, timestamp])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006 (substituem índices simples)
+  @@index([userId, operationType, timestamp(sort: Desc)])
+  @@index([operationType, timestamp(sort: Desc)])
+  @@index([timestamp(sort: Desc)], map: "UsageHistory_timestamp_desc_idx")
+}
+
+model AdminSettings {
+  id           String   @id @default("singleton")
+  featureCosts Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Plan {
+  id                String   @id @default(cuid())
+  clerkId           String?  @unique
+  clerkName         String?
+  name              String
+  credits           Int
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  currency          String?
+  priceMonthlyCents Int?
+  priceYearlyCents  Int?
+  badge             String?
+  ctaLabel          String?
+  ctaType           String?  @default("checkout")
+  ctaUrl            String?
+  description       String?
+  features          Json?
+  highlight         Boolean  @default(false)
+  billingSource     String   @default("clerk")
+  sortOrder         Int      @default(0)
+
+  @@index([active])
+  @@index([sortOrder])
+}
+
+model StorageObject {
+  id          String    @id @default(cuid())
+  userId      String
+  clerkUserId String
+  provider    String    @default("vercel_blob")
+  url         String
+  pathname    String
+  name        String
+  contentType String?
+  size        Int
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([clerkUserId])
+  @@index([contentType])
+  @@index([deletedAt])
+  @@index([name])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([userId, deletedAt, createdAt(sort: Desc)])
+  @@index([contentType, size(sort: Desc)])
+}
+
+model SubscriptionEvent {
+  id          String   @id @default(cuid())
+  userId      String?
+  clerkUserId String
+  planKey     String?
+  status      String
+  eventType   String
+  occurredAt  DateTime @default(now())
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([clerkUserId, occurredAt])
+  @@index([userId, occurredAt])
+}
+
+model RecommendedPortfolio {
+  id          String            @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  createdBy   String
+  funds       RecommendedFund[]
+
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("recommended_portfolios")
+}
+
+model RecommendedFund {
+  id             String               @id @default(cuid())
+  portfolioId    String
+  ticker         String
+  name           String
+  segment        String
+  currentPrice   Decimal              @db.Decimal(10, 2)
+  averagePrice   Decimal              @db.Decimal(10, 2)
+  ceilingPrice   Decimal              @db.Decimal(10, 2)
+  allocation     Decimal              @db.Decimal(5, 2)
+  recommendation FundRecommendation
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  portfolio      RecommendedPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId])
+  @@index([ticker])
+  @@index([recommendation])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([recommendation, allocation(sort: Desc)])
+  @@index([ticker, currentPrice])
+  @@map("recommended_funds")
+}
+
+model UserPortfolio {
+  id                  String               @id @default(cuid())
+  userId              String
+  originalFileName    String
+  uploadedAt          DateTime             @default(now())
+  positions           Json
+  totalValue          Float
+  lastAnalyzedAt      DateTime?
+  analysisReports     AnalysisReport[]
+  user                User                 @relation(fields: [userId], references: [id])
+  aporteRecomendacoes AporteRecomendacao[]
+
+  @@index([userId])
+  @@index([uploadedAt])
+  @@index([totalValue])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([userId, uploadedAt(sort: Desc)])
+  @@index([userId, lastAnalyzedAt])
+}
+
+model AnalysisReport {
+  id                        String                     @id @default(cuid())
+  userId                    String
+  userPortfolioId           String?
+  analysisType              AnalysisType
+  aiAgentVersion            String                     @default("v1.0")
+  summary                   String
+  currentAllocation         Json
+  riskAssessment            Json
+  performanceMetrics        Json
+  recommendations           Json
+  processingTime            Int?
+  creditsUsed               Int                        @default(10)
+  generatedAt               DateTime                   @default(now())
+  ruleSetId                 String?
+  ruleSetVersion            Int?
+  ruleSet                   RecommendationRuleSet?     @relation("AnalysisRuleSet", fields: [ruleSetId], references: [id])
+  user                      User                       @relation(fields: [userId], references: [id])
+  userPortfolio             UserPortfolio?             @relation(fields: [userPortfolioId], references: [id])
+  investmentRecommendations InvestmentRecommendation[]
+
+  @@index([userId])
+  @@index([analysisType])
+  @@index([generatedAt])
+  @@index([userPortfolioId])
+  @@index([ruleSetId])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([userId, generatedAt(sort: Desc)])
+  @@index([userId, analysisType, generatedAt(sort: Desc)])
+  @@index([userPortfolioId, generatedAt(sort: Desc)])
+}
+
+model InvestmentRecommendation {
+  id               String             @id @default(cuid())
+  analysisReportId String
+  fiiCode          String
+  fiiName          String
+  recommendation   RecommendationType
+  targetPercentage Float?
+  investmentAmount Float?
+  reasoning        String
+  confidence       Float
+  priority         Int                @default(1)
+  analysisReport   AnalysisReport     @relation(fields: [analysisReportId], references: [id])
+
+  @@index([analysisReportId])
+  @@index([fiiCode])
+  @@index([recommendation])
+  @@index([priority])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006
+  @@index([fiiCode, recommendation])
+  @@index([recommendation, confidence(sort: Desc)])
+  @@index([analysisReportId, priority(sort: Asc)])
+}
+
+model Notification {
+  id        String               @id @default(cuid())
+  userId    String
+  type      NotificationType
+  priority  NotificationPriority @default(NORMAL)
+  title     String
+  message   String
+  data      Json?
+  read      Boolean              @default(false)
+  readAt    DateTime?
+  createdAt DateTime             @default(now())
+  expiresAt DateTime?
+  user      User                 @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([priority])
+  @@index([read])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+model RecommendationRuleSet {
+  id        String                      @id @default(cuid())
+  name      String
+  version   Int                         @default(1)
+  isActive  Boolean                     @default(false)
+  rules     Json
+  metadata  Json
+  createdBy String
+  createdAt DateTime                    @default(now())
+  updatedAt DateTime                    @updatedAt
+  analyses  AnalysisReport[]            @relation("AnalysisRuleSet")
+  creator   User                        @relation("RuleSetCreator", fields: [createdBy], references: [id])
+  versions  RecommendationRuleVersion[]
+
+  @@index([isActive])
+  @@index([createdBy])
+  @@map("recommendation_rule_sets")
+}
+
+model RecommendationRuleVersion {
+  id             String                @id @default(cuid())
+  ruleSetId      String
+  version        Int
+  rules          Json
+  changesSummary String
+  createdBy      String
+  createdAt      DateTime              @default(now())
+  creator        User                  @relation("RuleVersionCreator", fields: [createdBy], references: [id])
+  ruleSet        RecommendationRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleSetId, version])
+  @@index([ruleSetId])
+  @@index([createdAt])
+  @@map("recommendation_rule_versions")
+}
+
+model RegrasAporte {
+  id                         String   @id @default(cuid())
+  nome                       String   @db.VarChar(255)
+  descricao                  String?
+  ativo                      Boolean  @default(true)
+  descontoMinimoAceitavel    Float    @default(0.0)
+  permitirSemDesconto        Boolean  @default(true)
+  toleranciaDesbalanceamento Float    @default(2.0)
+  pesoDesbalanceamento       Int      @default(60)
+  pesoDesconto               Int      @default(40)
+  limiteMaximoFundos         Int      @default(5)
+  alocacaoSequencial         Boolean  @default(true)
+  criadoPor                  String
+  criadoEm                   DateTime @default(now())
+  atualizadoEm               DateTime @updatedAt
+
+  @@index([ativo])
+  @@index([criadoPor])
+  @@map("regras_aporte")
+}
+
+model AporteRecomendacao {
+  id               String        @id @default(cuid())
+  userId           String
+  userPortfolioId  String
+  valorDisponivel  Float
+  recomendacao     Json
+  regrasUtilizadas Json
+  criadoEm         DateTime      @default(now())
+  user             User          @relation(fields: [userId], references: [id])
+  portfolio        UserPortfolio @relation(fields: [userPortfolioId], references: [id])
+
+  @@index([userPortfolioId])
+  // NOVOS ÍNDICES COMPOSTOS - PLAN-006 (substituem índices simples)
+  @@index([userId, criadoEm(sort: Desc)])
+  @@index([userPortfolioId, criadoEm(sort: Desc)])
+  @@map("aporte_recomendacoes")
+}
+
+model FiiPrecoTeto {
+  id           String   @id @default(cuid())
+  fiiCode      String   @unique @db.VarChar(10)
+  valorTeto    Float
+  fonte        String?
+  atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime @default(now())
+
+  @@index([fiiCode])
+  @@map("fii_preco_teto")
 }
 
 enum OperationType {
@@ -109,14 +401,21 @@ enum AnalysisType {
 }
 
 enum FiiSector {
-  LOGISTICO
+  LAJES
+  LOGISTICA
   SHOPPING
-  CORPORATIVO
-  RESIDENCIAL
-  TIJOLO
+  VAREJO_RENDA_URBANA
   PAPEL
-  FUNDOS
-  HIBRIDO
+  HEDGE_FUNDS
+  EDUCACIONAL
+  HIBRIDOS
+  AGRO
+  INFRA
+  DESENVOLVIMENTO
+  HOSPITAIS
+  HOTEIS
+  AGENCIAS
+  RESIDENCIAL
   OUTROS
 }
 
@@ -149,341 +448,4 @@ enum NotificationPriority {
   NORMAL
   HIGH
   URGENT
-}
-
-// Singleton row storing admin-configurable credit settings
-model AdminSettings {
-  id           String   @id @default("singleton")
-  featureCosts Json?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
-// Subscription plans sourced from Clerk and configured credits
-model Plan {
-  id        String   @id @default(cuid())
-  clerkId   String?  @unique // Clerk plan ID (e.g., cplan_*)
-  clerkName String?
-  name      String
-  credits   Int
-  active    Boolean  @default(true)
-  sortOrder Int      @default(0)
-  // Pricing synced from Clerk (amounts in cents)
-  currency           String?
-  priceMonthlyCents  Int?
-  priceYearlyCents   Int?
-  description        String?  @db.Text
-  features           Json?
-  badge              String?
-  highlight          Boolean  @default(false)
-  ctaType            String?  @default("checkout")
-  ctaLabel           String?
-  ctaUrl             String?
-  billingSource      String   @default("clerk")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([active])
-  @@index([sortOrder])
-}
-
-// File/object uploads tracked for admin management
-model StorageObject {
-  id           String   @id @default(cuid())
-  userId       String
-  clerkUserId  String
-  provider     String   @default("vercel_blob")
-  url          String
-  pathname     String
-  name         String
-  contentType  String?
-  size         Int
-  deletedAt    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  user         User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([createdAt])
-  @@index([clerkUserId])
-  @@index([contentType])
-  @@index([deletedAt])
-  @@index([name])
-}
-
-// Track subscription lifecycle events for revenue analytics
-model SubscriptionEvent {
-  id           String   @id @default(cuid())
-  userId       String?
-  clerkUserId  String
-  planKey      String?
-  status       String
-  eventType    String
-  occurredAt   DateTime @default(now())
-  metadata     Json?
-  createdAt    DateTime @default(now())
-
-  user         User?    @relation(fields: [userId], references: [id])
-
-  @@index([clerkUserId, occurredAt])
-  @@index([userId, occurredAt])
-}
-
-// Admin-configured recommended portfolios for FIIs
-model RecommendedPortfolio {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String   // Clerk user ID
-
-  funds RecommendedFund[]
-
-  @@map("recommended_portfolios")
-  @@index([isActive])
-  @@index([createdAt])
-}
-
-model RecommendedFund {
-  id              String                @id @default(cuid())
-  portfolioId     String
-  ticker          String
-  name            String
-  segment         String
-  currentPrice    Decimal               @db.Decimal(10,2)
-  averagePrice    Decimal               @db.Decimal(10,2)
-  ceilingPrice    Decimal               @db.Decimal(10,2)
-  allocation      Decimal               @db.Decimal(5,2) // 0-100%
-  recommendation  FundRecommendation
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-
-  portfolio RecommendedPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-
-  @@map("recommended_funds")
-  @@index([portfolioId])
-  @@index([ticker])
-  @@index([recommendation])
-}
-
-// User portfolios uploaded via Excel
-model UserPortfolio {
-  id               String     @id @default(cuid())
-  userId           String
-  originalFileName String                  // Nome original do Excel
-  uploadedAt       DateTime   @default(now())
-  positions        Json                    // Array de posições: [{ fiiCode, quantity, avgPrice, currentValue, etc. }]
-  totalValue       Float                   // Valor total da carteira
-  lastAnalyzedAt   DateTime?
-  
-  user             User       @relation(fields: [userId], references: [id])
-  analysisReports  AnalysisReport[]
-  aporteRecomendacoes AporteRecomendacao[]
-
-  @@index([userId])
-  @@index([uploadedAt])
-  @@index([totalValue])
-}
-
-// Analysis reports generated by AI agents
-model AnalysisReport {
-  id                String     @id @default(cuid())
-  userId            String
-  userPortfolioId   String?                 // Portfolio que foi analisado
-  analysisType      AnalysisType
-  aiAgentVersion    String     @default("v1.0")
-
-  // Dados da análise
-  summary           String     @db.Text     // Resumo executivo
-  currentAllocation Json                    // Alocação atual por setor
-  riskAssessment    Json                    // Avaliação de riscos
-  performanceMetrics Json                   // Métricas de performance
-  recommendations   Json                    // Array de recomendações detalhadas
-
-  // Metadados
-  processingTime    Int?                    // Tempo em milissegundos
-  creditsUsed       Int        @default(10)
-  generatedAt       DateTime   @default(now())
-
-  // Recommendation rules tracking
-  ruleSetId         String?
-  ruleSetVersion    Int?
-  ruleSet           RecommendationRuleSet? @relation("AnalysisRuleSet", fields: [ruleSetId], references: [id])
-
-  user              User       @relation(fields: [userId], references: [id])
-  userPortfolio     UserPortfolio? @relation(fields: [userPortfolioId], references: [id])
-  investmentRecommendations InvestmentRecommendation[]
-
-  @@index([userId])
-  @@index([analysisType])
-  @@index([generatedAt])
-  @@index([userPortfolioId])
-  @@index([ruleSetId])
-}
-
-// Investment recommendations generated by AI
-model InvestmentRecommendation {
-  id              String             @id @default(cuid())
-  analysisReportId String
-  fiiCode         String
-  fiiName         String
-  recommendation  RecommendationType
-  targetPercentage Float?             // % recomendado na carteira
-  investmentAmount Float?             // Valor em R$ a investir
-  reasoning       String    @db.Text  // Justificativa da IA
-  confidence      Float               // 0-1, confiança na recomendação
-  priority        Int       @default(1) // 1-5, prioridade de investimento
-  
-  analysisReport  AnalysisReport @relation(fields: [analysisReportId], references: [id])
-  
-  @@index([analysisReportId])
-  @@index([fiiCode])
-  @@index([recommendation])
-  @@index([priority])
-}
-
-// System notifications for users
-model Notification {
-  id          String              @id @default(cuid())
-  userId      String
-  type        NotificationType
-  priority    NotificationPriority @default(NORMAL)
-  title       String
-  message     String              @db.Text
-  data        Json?               // Additional data for the notification
-  read        Boolean             @default(false)
-  readAt      DateTime?
-  createdAt   DateTime            @default(now())
-  expiresAt   DateTime?           // Optional expiration for time-sensitive notifications
-  
-  user        User                @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([type])
-  @@index([priority])
-  @@index([read])
-  @@index([createdAt])
-  @@index([expiresAt])
-  @@index([userId, read])
-  @@index([userId, createdAt])
-}
-
-// Recommendation rule sets for portfolio analysis
-model RecommendationRuleSet {
-  id          String   @id @default(cuid())
-  name        String
-  version     Int      @default(1)
-  isActive    Boolean  @default(false)
-  rules       Json     // Complete JSON structure of rules
-  metadata    Json     // Source, description, notes, tags
-
-  // Relationships
-  createdBy   String
-  creator     User     @relation("RuleSetCreator", fields: [createdBy], references: [id])
-
-  // Version history
-  versions    RecommendationRuleVersion[]
-
-  // Analyses that used this ruleset
-  analyses    AnalysisReport[] @relation("AnalysisRuleSet")
-
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([isActive])
-  @@index([createdBy])
-  @@map("recommendation_rule_sets")
-}
-
-model RecommendationRuleVersion {
-  id              String   @id @default(cuid())
-
-  // FK to the main RuleSet
-  ruleSetId       String
-  ruleSet         RecommendationRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
-
-  version         Int
-  rules           Json     // Complete snapshot of rules at this version
-  changesSummary  String   @db.Text // Description of changes
-
-  // Audit trail
-  createdBy       String
-  creator         User     @relation("RuleVersionCreator", fields: [createdBy], references: [id])
-  createdAt       DateTime @default(now())
-
-  @@unique([ruleSetId, version])
-  @@index([ruleSetId])
-  @@index([createdAt])
-  @@map("recommendation_rule_versions")
-}
-
-// ============================================================================
-// DIRECIONADOR DE APORTES - Sistema Inteligente de Recomendações
-// ============================================================================
-
-// Regras configuráveis para o algoritmo de direcionamento de aportes
-model RegrasAporte {
-  id                          String   @id @default(cuid())
-
-  // Identificação
-  nome                        String   @db.VarChar(255)
-  descricao                   String?  @db.Text
-  ativo                       Boolean  @default(true)
-
-  // Regras de desconto
-  descontoMinimoAceitavel     Float    @default(0.0)  // % (ex: 0 = qualquer desconto)
-  permitirSemDesconto         Boolean  @default(true)
-
-  // Regras de balanceamento
-  toleranciaDesbalanceamento  Float    @default(2.0)  // % (ex: 2 = tolera ±2%)
-  pesoDesbalanceamento        Int      @default(60)   // 0-100
-  pesoDesconto                Int      @default(40)   // 0-100
-
-  // Regras de recomendação
-  limiteMaximoFundos          Int      @default(5)
-  alocacaoSequencial          Boolean  @default(true)
-
-  // Metadados
-  criadoPor                   String
-  criadoEm                    DateTime @default(now())
-  atualizadoEm                DateTime @updatedAt
-
-  @@map("regras_aporte")
-  @@index([ativo])
-  @@index([criadoPor])
-}
-
-// Histórico de recomendações de aportes geradas
-model AporteRecomendacao {
-  id                String      @id @default(cuid())
-  userId            String
-  userPortfolioId   String
-  valorDisponivel   Float
-  recomendacao      Json        // Estrutura completa de RecomendacaoAporte
-  regrasUtilizadas  Json        // Snapshot das regras no momento da análise
-  criadoEm          DateTime    @default(now())
-
-  user              User        @relation(fields: [userId], references: [id])
-  portfolio         UserPortfolio @relation(fields: [userPortfolioId], references: [id])
-
-  @@index([userId, criadoEm])
-  @@index([userPortfolioId])
-  @@map("aporte_recomendacoes")
-}
-
-// Preços teto configurados para cada FII
-model FiiPrecoTeto {
-  id           String   @id @default(cuid())
-  fiiCode      String   @unique @db.VarChar(10)
-  valorTeto    Float    // Preço teto configurado
-  fonte        String?  // "usuario" | "sistema" | "api"
-  atualizadoEm DateTime @updatedAt
-  criadoEm     DateTime @default(now())
-
-  @@map("fii_preco_teto")
-  @@index([fiiCode])
 }

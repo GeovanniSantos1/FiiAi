@@ -34,6 +34,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { usePortfolioFunds, useDeleteFund } from '@/hooks/admin/use-admin-carteiras';
 import { RecommendationBadge } from './RecommendationBadge';
 import { RecommendedFundType } from '@/lib/validations/carteiras';
+import { SectorBadge } from '@/components/fii/SectorBadge';
+import { FiiSector } from '@/types/fii-sectors';
 
 interface FundosTableProps {
   portfolioId: string;
@@ -167,7 +169,7 @@ export function FundosTable({ portfolioId, portfolioName }: FundosTableProps) {
                   </TableCell>
                   <TableCell>{fund.name}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{fund.segment}</Badge>
+                    <SectorBadge sector={fund.segment as FiiSector} />
                   </TableCell>
                   <TableCell className="text-right">
                     R$ {fund.currentPrice.toFixed(2)}

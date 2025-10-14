@@ -2,6 +2,8 @@
 // TIPOS PARA SISTEMA DE DIRECIONADOR DE APORTES
 // ============================================================================
 
+import { FiiSector } from './fii-sectors';
+
 /**
  * Request para gerar recomendação de aporte
  */
@@ -17,7 +19,7 @@ export interface AporteRequest {
 export interface FundoPrioritizado {
   fiiCode: string;
   fiiName: string;
-  setor: string;
+  setor: FiiSector;
 
   // Situação atual
   percentualAtual: number;
@@ -94,7 +96,7 @@ export interface RegrasConfiguraveis {
 export interface FundoDesbalanceamento {
   fiiCode: string;
   fiiName: string;
-  setor: string;
+  setor: FiiSector;
   percentualAtual: number;
   percentualIdeal: number;
   desbalanceamento: number;
@@ -119,7 +121,7 @@ export interface FundoDesconto {
 export interface IdealAllocation {
   fiiCode: string;
   fiiName: string;
-  sector: string;
+  sector: FiiSector;
   percentage: number; // % ideal na carteira
 }
 
@@ -140,7 +142,7 @@ export interface UserPortfolioWithPositions {
 export interface PortfolioPosition {
   fiiCode: string;
   fiiName: string;
-  sector: string;
+  sector: FiiSector;
   quantity: number;
   avgPrice: number;
   currentValue: number;

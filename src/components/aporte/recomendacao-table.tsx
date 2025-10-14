@@ -19,7 +19,10 @@ export function RecomendacaoTable({ fundos, aguardar = false }: RecomendacaoTabl
     }).format(value);
   };
 
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (value: number | null | undefined) => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return "0.00%";
+    }
     return `${value.toFixed(2)}%`;
   };
 

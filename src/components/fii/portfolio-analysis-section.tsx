@@ -240,43 +240,6 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Overall Score */}
-            <div className="text-center">
-              <div className={`text-3xl font-bold ${getScoreColor(analysis.overallScore)}`}>
-                {analysis.overallScore}
-              </div>
-              <div className="text-sm text-muted-foreground">Nota Geral</div>
-              <Progress value={analysis.overallScore} className="mt-2" />
-            </div>
-
-            {/* Risk Level */}
-            <div className="text-center">
-              <Badge className={getRiskColor(analysis.riskLevel)}>
-                {analysis.riskLevel}
-              </Badge>
-              <div className="text-sm text-muted-foreground mt-2">Nível de Risco</div>
-            </div>
-
-            {/* Diversification */}
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${getScoreColor(analysis.diversificationScore)}`}>
-                {analysis.diversificationScore}
-              </div>
-              <div className="text-sm text-muted-foreground">Diversificação</div>
-              <Progress value={analysis.diversificationScore} className="mt-2" />
-            </div>
-
-            {/* Concentration Risk */}
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {analysis.concentrationRisk}%
-              </div>
-              <div className="text-sm text-muted-foreground">Concentração</div>
-            </div>
-          </div>
-        </CardContent>
       </Card>
 
       {/* Summary */}
@@ -347,7 +310,7 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
 
             {analysis.performanceAnalysis.strongPositions?.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-green-600 mb-2">Posições Fortes</h4>
+                <h4 className="text-sm font-medium text-green-600 mb-2">Ativos da carteira recomendada</h4>
                 <div className="flex flex-wrap gap-1">
                   {analysis.performanceAnalysis.strongPositions.map((fii) => (
                     <Badge key={fii} variant="secondary" className="bg-green-100 text-green-800">
@@ -360,7 +323,7 @@ export function PortfolioAnalysisSection({ portfolioId, portfolioName }: Portfol
 
             {analysis.performanceAnalysis.weakPositions?.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-orange-600 mb-2">Posições a Melhorar</h4>
+                <h4 className="text-sm font-medium text-orange-600 mb-2">Posições fora da carteira recomendada</h4>
                 <div className="flex flex-wrap gap-1">
                   {analysis.performanceAnalysis.weakPositions.map((fii) => (
                     <Badge key={fii} variant="secondary" className="bg-orange-100 text-orange-800">

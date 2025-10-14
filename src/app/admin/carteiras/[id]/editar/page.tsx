@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { CarteiraForm } from '@/components/admin/carteiras/CarteiraForm';
 import { useAdminPortfolio } from '@/hooks/admin/use-admin-carteiras';
 
 interface EditarCarteiraPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function EditCarteiraContent({ portfolioId }: { portfolioId: string }) {
@@ -38,11 +38,13 @@ function EditCarteiraContent({ portfolioId }: { portfolioId: string }) {
 }
 
 export default function EditarCarteiraPage({ params }: EditarCarteiraPageProps) {
+  const { id } = use(params);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/admin/carteiras/${params.id}`}>
+          <Link href={`/admin/carteiras/${id}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Link>
@@ -57,7 +59,7 @@ export default function EditarCarteiraPage({ params }: EditarCarteiraPageProps) 
 
       <div className="max-w-2xl">
         <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-          <EditCarteiraContent portfolioId={params.id} />
+          <EditCarteiraContent portfolioId={id} />
         </Suspense>
       </div>
     </div>

@@ -27,6 +27,30 @@ export default function DirecionarAportesPage() {
 
   const recomendacao = useRecomendacaoAporte();
 
+  // Formatar valor como moeda brasileira
+  const formatarMoeda = (valor: string) => {
+    // Remove tudo exceto números
+    const apenasNumeros = valor.replace(/\D/g, '');
+
+    // Converte para número e divide por 100 para ter as casas decimais
+    const numero = parseFloat(apenasNumeros) / 100;
+
+    // Se não for um número válido, retorna vazio
+    if (isNaN(numero)) return '';
+
+    // Formata como moeda brasileira
+    return numero.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  // Handler para mudança no input de valor
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valorFormatado = formatarMoeda(e.target.value);
+    setValorDisponivel(valorFormatado);
+  };
+
   // Buscar portfolios do usuário
   const { data: portfolios, isLoading: loadingPortfolios, error: portfoliosError } = useQuery<Portfolio[]>({
     queryKey: ['portfolios'],
@@ -60,7 +84,8 @@ export default function DirecionarAportesPage() {
       return;
     }
 
-    const valor = parseFloat(valorDisponivel.replace(/[^\d,]/g, '').replace(',', '.'));
+    // Remove formatação e converte para número
+    const valor = parseFloat(valorDisponivel.replace(/\./g, '').replace(',', '.'));
 
     if (valor < 50) {
       toast.error('Valor mínimo: R$ 50,00');
@@ -148,12 +173,10 @@ export default function DirecionarAportesPage() {
                 </span>
                 <Input
                   id="valor"
-                  type="number"
-                  min={50}
-                  max={1000000}
-                  step={100}
+                  type="text"
+                  inputMode="numeric"
                   value={valorDisponivel}
-                  onChange={(e) => setValorDisponivel(e.target.value)}
+                  onChange={handleValorChange}
                   className="pl-10"
                   placeholder="10.000,00"
                 />

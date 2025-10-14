@@ -58,6 +58,32 @@ export async function analyzeFIIPortfolio(portfolioData: PortfolioData): Promise
     const prompt = `
 ${FIIAI_PROMPT}
 
+=== CLASSIFICAÇÃO DE SETORES DE FIIs ===
+Identifique corretamente o setor de cada FII da carteira usando as categorias abaixo:
+
+- **Lajes**: FIIs de lajes corporativas (escritórios) - Ex: HGRE11, HGLG11, BRCR11, JSRE11, CPTS11
+- **Logística**: FIIs de galpões logísticos - Ex: HGBS11, BTLG11, LVBI11, XPLG11, VILG11
+- **Shopping**: FIIs de shopping centers - Ex: HGBS11, VISC11, XPML11, MALL11, ALSO11
+- **Varejo/renda urbana**: FIIs de imóveis de varejo e renda urbana - Ex: KNRI11, PVBI11,URBS
+- **Papel**: FIIs de recebíveis imobiliários e CRIs - Ex: MCCI11, JSAF11, RBRR11, KNCR11, BCFF11
+- **Hedge Funds**: FIIs multimercado e híbridos - Ex: HGFF11
+- **Educacional**: FIIs de escolas e universidades
+- **Híbridos**: FIIs com estratégia mista (tijolo + papel) - Ex: PVBI11, KFOF11
+- **Agro**: FIIs focados em agronegócio
+- **Infra**: FIIs de infraestrutura (energia, telecomunicações)
+- **Desenvolvimento**: FIIs focados em desenvolvimento imobiliário
+- **Hospitais**: FIIs de hospitais e clínicas - Ex: NSLU11
+- **Hotéis**: FIIs de hotéis e resorts - Ex: HTMX11
+- **Agências**: FIIs de agências bancárias
+- **Residencial**: FIIs residenciais
+- **Outros**: FIIs que não se encaixam nas categorias acima
+
+IMPORTANTE: 
+1. Pesquise o ticker do FII e classifique-o no setor correto
+2. Apenas coloque em "Outros" se realmente não souber a classificação
+3. A soma de todos os percentuais em "distribution" deve ser exatamente 100%
+4. Inclua APENAS os setores que existem na carteira do usuário (omita setores com 0%)
+
 === REGRAS ATIVAS DO SISTEMA ===
 ${JSON.stringify(activeRules.rules, null, 2)}
 
@@ -74,11 +100,22 @@ IMPORTANTE: Responda APENAS em formato JSON com a seguinte estrutura (mantenha c
   "concentrationRisk": [percentual do maior ativo],
   "sectorAnalysis": {
     "distribution": {
-      "Logístico": [percentual],
-      "Corporativo": [percentual],
+      "Lajes": [percentual],
+      "Logística": [percentual],
       "Shopping": [percentual],
+      "Varejo/renda urbana": [percentual],
       "Papel": [percentual],
-      "Outros": [percentual]
+      "Hedge Funds": [percentual],
+      "Educacional": [percentual],
+      "Híbridos": [percentual],
+      "Agro": [percentual],
+      "Infra": [percentual],
+      "Desenvolvimento": [percentual],
+      "Hospitais": [percentual],
+      "Hotéis": [percentual],
+      "Agências": [percentual],
+      "Residencial": [percentual],
+      "Outros": [percentual para FIIs que não se encaixam em nenhuma categoria acima]
     },
     "recommendations": ["Use as 8 seções do relatório conforme metodologia FiiAi"]
   },

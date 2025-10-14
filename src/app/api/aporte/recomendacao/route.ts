@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
           pesoDesbalanceamento: 60,
           pesoDesconto: 40,
           limiteMaximoFundos: 5,
-          alocacaoSequencial: true,
+          alocacaoSequencial: false, // Usar alocação proporcional para distribuir entre todos os fundos
           criadoPor: userId,
         },
       });
