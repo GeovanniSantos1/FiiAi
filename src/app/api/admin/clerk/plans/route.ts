@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { isAdmin } from '@/lib/admin-utils'
-import { fetchCommercePlans } from '@/lib/clerk/commerce-plans'
 
 export async function GET() {
   const { userId } = await auth()
