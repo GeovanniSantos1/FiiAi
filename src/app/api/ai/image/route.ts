@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { validateUserAuthentication } from '@/lib/auth-utils'
-import { validateCreditsForFeature, deductCreditsForFeature, refundCreditsForFeature } from '@/lib/credits/deduct'
-import { InsufficientCreditsError } from '@/lib/credits/errors'
 import { type FeatureKey } from '@/lib/credits/feature-config'
 
 type ImageUrl = {
