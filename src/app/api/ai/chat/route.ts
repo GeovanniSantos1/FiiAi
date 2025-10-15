@@ -6,8 +6,6 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createMistral } from '@ai-sdk/mistral'
 import { z } from 'zod'
 import { validateUserAuthentication } from '@/lib/auth-utils'
-import { InsufficientCreditsError } from '@/lib/credits/errors'
-import { validateCreditsForFeature, deductCreditsForFeature, refundCreditsForFeature } from '@/lib/credits/deduct'
 import { type FeatureKey } from '@/lib/credits/feature-config'
 
 const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
